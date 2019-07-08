@@ -1,11 +1,25 @@
-import { TestBed, async } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import {TestBed, async} from '@angular/core/testing';
+import {AppComponent} from './app.component';
+import {ChartModule, HIGHCHARTS_MODULES} from 'angular-highcharts';
+import {FusionChartsModule} from 'angular-fusioncharts';
+import {ChartComponent} from './chart/chart.component';
+import {FusionchartsComponent} from './fusioncharts/fusioncharts.component';
+import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import * as more from 'highcharts/highcharts-more';
+import * as exporting from 'highcharts/modules/exporting';
+import * as exportData from 'highcharts/modules/export-data';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
+      declarations: [AppComponent, ChartComponent, FusionchartsComponent],
+      imports: [ChartModule, FusionChartsModule],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      providers: [
+        {
+          provide: HIGHCHARTS_MODULES,
+          useFactory: () => [more, exporting, exportData],
+        },
       ],
     }).compileComponents();
   }));
@@ -20,12 +34,5 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     expect(app.title).toEqual('poc-highcharts');
-  });
-
-  it('should render title in a h1 tag', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to poc-highcharts!');
   });
 });

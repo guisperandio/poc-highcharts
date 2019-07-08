@@ -1,13 +1,61 @@
-# Editor configuration, see https://editorconfig.org
+#############################################
+# Genesis Automation EditorConfig Options   #
+#############################################
+# Editor configuration, see http://editorconfig.org
+
+#################
+# Common Settings
+#################
+
+# This file is the top-most EditorConfig file
 root = true
 
+# All files
 [*]
-charset = utf-8
-indent_style = space
-indent_size = 2
-insert_final_newline = true
-trim_trailing_whitespace = true
+charset                                                           = utf-8
+indent_style                                                      = space
+indent_size                                                       = 2
+insert_final_newline                                              = true
+trim_trailing_whitespace                                          = true
+insert_final_newline                                              = true
+end_of_line                                                       = lf
+# editorconfig-tools is unable to ignore longs strings or urls
+max_line_length                                                   = null
 
+#########################
+# File Extension Settings
+#########################
+
+# Code files
+[*.{cs,csx,vb,vbx}]
+indent_size                                                       = 2
+charset                                                           = utf-8-bom
+
+# XML Configuration Files
+[*.{xml,config,props,targets,nuspec,resx,ruleset,vsixmanifest,vsct}]
+indent_size                                                       = 2
+
+# JSON Files
+[*.{json,json5}]
+indent_size                                                       = 2
+
+# YAML Files
+[*.{yml,yaml}]
+indent_size                                                       = 2
+
+# Markdown Files
 [*.md]
-max_line_length = off
-trim_trailing_whitespace = false
+max_line_length                                                   = off
+trim_trailing_whitespace                                          = false
+
+# Web Files
+[*.{htm,html,js,ts,tsx,css,sass,scss,less,svg,vue}]
+indent_size                                                       = 2
+insert_final_newline                                              = true
+
+# Batch Files
+[*.{cmd,bat}]
+
+# Bash Files
+[*.sh]
+end_of_line                                                       = lf

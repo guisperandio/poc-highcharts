@@ -1,0 +1,2 @@
+#!/bin/sh
+ng build poc-highcharts --prod --output-hashing=none && cat dist/poc-highcharts/runtime-es2015.js dist/poc-highcharts/polyfills-es2015.js dist/poc-highcharts/scripts.js dist/poc-highcharts/main-es2015.js > preview/poc-highcharts-es2015.js && cat dist/poc-highcharts/runtime-es5.js dist/poc-highcharts/polyfills-es5.js dist/poc-highcharts/scripts.js dist/poc-highcharts/main-es5.js > preview/poc-highcharts-es5.js
