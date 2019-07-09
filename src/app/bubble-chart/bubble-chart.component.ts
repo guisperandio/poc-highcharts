@@ -1,19 +1,58 @@
-import {Component, OnInit} from '@angular/core';
-import {Tooltip} from 'highcharts';
+import {Component, OnInit, Input} from '@angular/core';
+import {dateFormat} from 'highcharts';
+import {AxisDates} from '@helpers/xaxis.helper';
+import {IBubbleOptions} from 'src/interfaces/tooltip.interface';
+import {TAxisDates} from 'src/interfaces/xaxis.interface';
 
 @Component({
   templateUrl: './bubble-chart.component.html',
 })
 export class BubbleChartComponent implements OnInit {
+  @Input() ticksInterval: TAxisDates;
+  @Input() chartData: any;
+
   today: Date = new Date();
-  chartParams: Highcharts.Options;
-  constructor() {
-    console.log(Tooltip);
-  }
+  chartParams: IBubbleOptions;
+
+  constructor(private axisDates: AxisDates) {}
 
   ngOnInit() {
+    this.axisDates.year = 2019;
+    this.ticksInterval = this.ticksInterval
+      ? this.ticksInterval
+      : 'firstQuarter';
+
+    this.chartData = [
+      {
+        x: Date.UTC(2019, 0, 15),
+        y: 53,
+        z: 100000,
+        text: 'PipelineTest',
+      },
+      {
+        x: Date.UTC(2019, 1, 3),
+        y: 23,
+        z: 50000,
+        text: 'PipelineTest 2',
+      },
+      {
+        x: Date.UTC(2019, 1, 6),
+        y: 75,
+        z: 200000,
+        text: 'PipelineTest 2',
+      },
+    ];
+
+    this.setChartParams();
+  }
+
+  setChartParams() {
     let pinned: boolean;
     let lastPointClicked: string;
+
+    const ticks = this.axisDates[this.ticksInterval];
+    const format = dateFormat;
+
     this.chartParams = {
       chart: {
         type: 'bubble',
@@ -36,14 +75,18 @@ export class BubbleChartComponent implements OnInit {
 
       xAxis: {
         type: 'datetime',
-        dateTimeLabelFormats: {
-          month: {main: '%b <br> %Y'},
+        endOnTick: false,
+        min: ticks[0],
+        max: ticks[ticks.length - 1],
+        labels: {
+          staggerLines: 1,
+          formatter() {
+            return format('%e <br> %b', this.value);
+          },
         },
-        min: Date.UTC(2019, 0, 1),
-        max: Date.UTC(2019, 6, 1),
-        minTickInterval: 30 * 24 * 3600 * 1000,
-        minRange: 30 * 24 * 3600 * 1000,
-        ordinal: false,
+        tickPositioner() {
+          return ticks;
+        },
       },
 
       yAxis: {
@@ -62,16 +105,42 @@ export class BubbleChartComponent implements OnInit {
 
       tooltip: {
         useHTML: true,
-        headerFormat: '<div class="bubble-details">',
+        headerFormat: '<div class="bubble bubble-tooltip">',
         pointFormat: `
-            <div class="bubble-details__score"><span class="bubble-details__score-text">{point.y}</span></div>
-            <div class="bubble-details__info">
-              <span class="bubble-details__title">{point.text}</span>
-              <span class="bubble-detgails__amount">{point.value}</span>
+            <div class="bubble-tooltip__score"><span class="bubble-tooltip__score-text">{point.y}</span></div>
+            <div class="bubble-tooltip__info">
+              <span class="bubble-tooltip__title">{point.text}</span>
+              <span class="bubble-tooltip__amount">€{point.z}</span>
             </div>
+            <div class="bubble-tooltip__close">X</div>
           `,
         footerFormat: '</div>',
         followPointer: false,
+        enabled: true,
+        hideDelay: 0.5,
+        style: {
+          pointerEvents: 'auto',
+        },
+        events: {
+          tooltipClick: (tooltip, event) => {
+            if (tooltip.isPinned) {
+              tooltip.unpin();
+            }
+            tooltip.hide();
+            tooltip.chart.series.forEach(serie => {
+              serie.points
+                .filter(x => x.selected)
+                .map(point => {
+                  point.select(false, false);
+
+                  return point;
+                });
+            });
+          },
+          tooltipMouseOut: tooltip => {
+            tooltip.hide();
+          },
+        },
       },
       plotOptions: {
         series: {
@@ -80,43 +149,38 @@ export class BubbleChartComponent implements OnInit {
             enabled: true,
             format: '{point.name}',
           },
+          pointInterval: 24 * 3600 * 1000, // one day
+          pointStart: ticks[0],
         },
-      },
-
-      series: [
-        {
+        bubble: {
+          minSize: 10,
+          maxSize: 50,
           point: {
             events: {
               click(event) {
+                this.select(!this.selected, false);
                 this.series.chart.tooltip[pinned ? 'unpin' : 'pin']();
-                if (event.point.id === lastPointClicked) {
-                  this.series.chart.tooltip.hide();
-                }
                 pinned = !pinned;
                 lastPointClicked = event.point.id;
               },
             },
           },
-          allowPointSelect: true,
+        },
+      },
+
+      series: [
+        {
+          allowPointSelect: false,
           type: 'bubble',
-          data: [
-            {
-              x: Date.UTC(2019, 0, 15),
-              y: 53,
-              z: 12,
-              text: 'PipelineTest',
-              value: '€100.000',
-            },
-            {
-              x: Date.UTC(2019, 1, 3),
-              y: 23,
-              z: 12,
-              text: 'PipelineTest 2',
-              value: '€50.000',
-            },
-          ],
+          data: this.chartData,
         },
       ],
     };
+  }
+
+  onChangeInterval() {
+    this.ticksInterval =
+      this.ticksInterval === 'entireYear' ? 'firstQuarter' : 'entireYear';
+    this.setChartParams();
   }
 }

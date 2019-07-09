@@ -8,6 +8,10 @@ import * as boost from 'highcharts/modules/boost';
 import * as funnel from 'highcharts/modules/funnel';
 import * as highstock from 'highcharts/modules/stock';
 
+// Highcharts Helpers
+import '@helpers/tooltip.helper';
+
+// Highcharts providers array
 export function highchartsModules() {
   return [more, boost, funnel, highstock];
 }
@@ -16,18 +20,18 @@ export function highchartsModules() {
 import {FlexLayoutModule} from '@angular/flex-layout';
 
 // Angular Custom Elements
-import {ChartComponent} from './chart/chart.component';
-import {AreaChartComponent} from './area-chart/area-chart.component';
-import {PieChartComponent} from './pie-chart/pie-chart.component';
-import {BarChartComponent} from './bar-chart/bar-chart.component';
-import {FunnelChartComponent} from './funnel-chart/funnel-chart.component';
-import {CandleChartComponent} from './candle-chart/candle-chart.component';
-import {LineChartComponent} from './line-chart/line-chart.component';
-import {BubbleChartComponent} from './bubble-chart/bubble-chart.component';
+import {ChartComponent} from '@components/chart/chart.component';
+import {AreaChartComponent} from '@components/area-chart/area-chart.component';
+import {PieChartComponent} from '@components/pie-chart/pie-chart.component';
+import {BarChartComponent} from '@components/bar-chart/bar-chart.component';
+import {FunnelChartComponent} from '@components/funnel-chart/funnel-chart.component';
+import {CandleChartComponent} from '@components/candle-chart/candle-chart.component';
+import {LineChartComponent} from '@components/line-chart/line-chart.component';
+import {BubbleChartComponent} from '@components/bubble-chart/bubble-chart.component';
 
 // Global vars import
-import {CustomElementsInterface, GlobalVars} from './global.vars';
-import {AppComponent} from './app.component';
+import {CustomElementsInterface, GlobalVars} from '@components/global.vars';
+import {AppComponent} from '@components/app.component';
 
 // DatePipe
 import {DatePipe} from '@angular/common';

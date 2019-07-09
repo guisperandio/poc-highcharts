@@ -1,4 +1,11 @@
-import {Component, OnInit, Input, ChangeDetectionStrategy} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  ChangeDetectionStrategy,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import {Chart, StockChart} from 'angular-highcharts';
 
 @Component({
@@ -6,12 +13,18 @@ import {Chart, StockChart} from 'angular-highcharts';
   templateUrl: './chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChartComponent implements OnInit {
+export class ChartComponent implements OnChanges, OnInit {
   @Input() chartParams: Highcharts.Options;
   @Input() isStockChart: boolean;
 
   chartData: Chart | StockChart;
   constructor() {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.chartData = this.isStockChart
+      ? new StockChart(this.chartParams)
+      : new Chart(this.chartParams);
+  }
 
   ngOnInit() {
     this.isStockChart = Boolean(this.isStockChart);

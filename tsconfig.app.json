@@ -5,7 +5,11 @@
   },
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": []
+    "types": [],
+    "paths": {
+      "@helpers/*": ["src/helpers/*"],
+      "@components/*": ["src/app/*"]
+    }
   },
   "include": [
     "src/**/*.ts"
@@ -13,6 +17,5 @@
   "exclude": [
     "src/test.ts",
     "src/**/*.spec.ts"
-  ],
-  "files": ["./src/helpers/tooltip.helper.ts"]
+  ]
 }

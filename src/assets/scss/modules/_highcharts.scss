@@ -149,6 +149,7 @@ $scrollbar-track-border: $neutral-color-5 !default;
     fill: $neutral-color-60;
     cursor: default;
     font-size: $axis-labels-font-size;
+    text-transform: uppercase;
 }
 .highcharts-grid-line {
     fill: none;
@@ -760,4 +761,19 @@ text.highcharts-drilldown-data-label,
 }
 .highcharts-grid-axis .highcharts-axis-line {
     stroke-width: 1px;
+}
+
+.bubble {
+  .bubble-tooltip__close {
+    padding: 5px;
+    background-color: white;
+    border: 1px solid #eaeaea;
+    border-radius: 20px;
+    width: 27px;
+    text-align: center;
+    position: absolute;
+    top: -22px;
+    right: -23px;
+    cursor: pointer;
+  }
 }
