@@ -1,44 +1,55 @@
 import * as Highcharts from 'highcharts';
+import {ITooltip} from 'src/interfaces/tooltip.interface';
 
 declare module 'highcharts' {
   interface Tooltip {
     isPinned: boolean;
 
-    pin<U>(): void;
-    unpin<U>(): void;
+    _hide(): void;
+    _move(x: number, y: number, anchorX: number, anchorY: number): void;
+    _refresh(pointOrPoints: Point | Point[], mouseEvent?: Event): void;
+
+    pin(): void;
+    unpin(): void;
   }
 }
-(H => {
-  H.Tooltip.prototype.pin = function() {
-    this._hide = this.hide;
-    this._move = this.move;
-    this._refresh = this.refresh;
-    this.hide = () => {};
-    this.move = () => {};
-    this.refresh = () => {};
 
-    this.isPinned = true;
-  };
-  H.Tooltip.prototype.unpin = function() {
-    this.hide = this._hide;
-    this.move = this._move;
-    this.refresh = this._refresh;
+Highcharts.Tooltip.prototype.isPinned = false;
 
-    this.isPinned = false;
-  };
+Highcharts.Tooltip.prototype._hide = () => {};
+Highcharts.Tooltip.prototype._move = () => {};
+Highcharts.Tooltip.prototype._refresh = () => {};
 
-  H.wrap(H.Tooltip.prototype, 'refresh', function(proceed) {
-    const tooltip = this;
-    const refreshArguments = arguments;
+const H = Highcharts.Tooltip.prototype;
 
-    proceed.apply(tooltip, Array.prototype.slice.call(refreshArguments, 1));
+Highcharts.Tooltip.prototype.pin = () => {
+  [H.hide, H._hide] = [H._hide, H.hide];
+  [H.move, H._move] = [H._move, H.move];
+  [H.refresh, H._refresh] = [H._refresh, H.refresh];
 
-    tooltip.label.on('click', e => {
-      tooltip.options.events.tooltipClick(tooltip, e);
-    });
+  H.isPinned = true;
+};
 
-    tooltip.label.on('mouseleave', e => {
-      tooltip.options.events.tooltipMouseOut(tooltip);
-    });
+Highcharts.Tooltip.prototype.unpin = () => {
+  [H.hide, H._hide] = [H._hide, H.hide];
+  [H.move, H._move] = [H._move, H.move];
+  [H.refresh, H._refresh] = [H._refresh, H.refresh];
+
+  H.isPinned = false;
+};
+
+Highcharts.wrap(Highcharts.Tooltip.prototype, 'refresh', function(proceed) {
+  const tooltip: ITooltip = this;
+  const tooltipLabel = tooltip.getLabel();
+  const refreshArguments = arguments;
+
+  proceed.apply(tooltip, Array.prototype.slice.call(refreshArguments, 1));
+
+  tooltipLabel.on('click', (e: MouseEvent) => {
+    tooltip.options.events.tooltipClick(tooltip, e.target);
   });
-})(Highcharts);
+
+  tooltipLabel.on('mouseleave', () => {
+    tooltip.options.events.tooltipMouseOut(tooltip);
+  });
+});
