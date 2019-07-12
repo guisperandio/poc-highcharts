@@ -1,70 +1,128 @@
 import {Component, OnInit, Input} from '@angular/core';
-import {dateFormat} from 'highcharts';
+import {
+  dateFormat,
+  SeriesBubbleDataOptions,
+  XAxisOptions,
+  YAxisOptions,
+  SeriesOptionsType,
+} from 'highcharts';
 import {AxisDates} from '@helpers/xaxis.helper';
-import {IBubbleOptions} from 'src/interfaces/tooltip.interface';
+import {IBubbleOptions, IBubbleTooltip} from 'src/interfaces/tooltip.interface';
 import {TAxisDates} from 'src/interfaces/xaxis.interface';
+import {CurrencyPipe} from '@angular/common';
+import {
+  IDefaultParams,
+  IXAxisParams,
+  ITooltipParams,
+  ISeriesParams,
+} from 'src/interfaces/charts.interface';
+
+interface IYAxisParams {
+  axisClass: string;
+  axisTitle: string;
+  minVal: number;
+  maxVal: number;
+  interval: number;
+}
 
 @Component({
   templateUrl: './bubble-chart.component.html',
 })
 export class BubbleChartComponent implements OnInit {
   @Input() ticksInterval: TAxisDates;
-  @Input() chartData: any;
+  @Input() chartData: Array<
+    | [string | number, number]
+    | [string | number, number, number]
+    | SeriesBubbleDataOptions
+  > = [];
 
   today: Date = new Date();
   chartParams: IBubbleOptions;
   chartPartialParams: Partial<IBubbleOptions>;
 
-  assign = <T, U>(original: T, changes: U) =>
-    Object.assign({}, original, changes) as T;
-
-  constructor(private axisDates: AxisDates) {}
+  constructor(private axisDates: AxisDates, private currency: CurrencyPipe) {}
 
   ngOnInit() {
+    // TODO: Change this to BehaviorSubject
     this.axisDates.year = 2019;
+
     this.ticksInterval = this.ticksInterval
       ? this.ticksInterval
       : 'firstQuarter';
 
-    this.chartData = [
-      {
-        x: Date.UTC(2019, 0, 15),
-        y: 53,
-        z: 100000,
-        text: 'PipelineTest',
-      },
-      {
-        x: Date.UTC(2019, 1, 3),
-        y: 23,
-        z: 50000,
-        text: 'PipelineTest 2',
-      },
-      {
-        x: Date.UTC(2019, 1, 6),
-        y: 75,
-        z: 200000,
-        text: 'PipelineTest 2',
-      },
-    ];
+    this.chartData = this.getChartData();
 
-    this.setChartDefaultParams();
-    this.setXAxisParams();
-    this.setYAxisParams();
-    this.setTooltipParams();
-    this.setPlotOptions();
-    this.setSeriesParams();
+    this.chartPartialParams = this.getChartDefaultParams();
 
-    this.setChartParams();
+    this.chartPartialParams.xAxis = this.getXAxisParams({
+      chartDates: this.axisDates[this.ticksInterval],
+    });
+
+    this.chartPartialParams.yAxis = this.getYAxisParams();
+
+    this.chartPartialParams.tooltip = this.getTooltipParams({
+      enabled: true,
+      animation: true,
+      useHTML: true,
+      followPointer: false,
+    });
+
+    this.chartPartialParams.series = this.getSeriesParams();
+
+    this.chartParams = this.getChartParams(this.chartPartialParams);
   }
 
-  setChartDefaultParams() {
-    this.chartPartialParams = {
+  assign = (original: IBubbleOptions, changes: Partial<IBubbleOptions>) =>
+    Object.assign({}, original, changes) as IBubbleOptions;
+
+  getRandomNum = (max: number): number => {
+    return Math.floor(Math.random() * Math.floor(max));
+  };
+
+  getChartData = (
+    arraySize = 50
+  ): Array<
+    | [string | number, number]
+    | [string | number, number, number]
+    | SeriesBubbleDataOptions
+  > => {
+    const data: Array<
+      | [string | number, number]
+      | [string | number, number, number]
+      | SeriesBubbleDataOptions
+    > = [];
+
+    [...Array(arraySize).keys()].forEach(num => {
+      const yValue = this.getRandomNum(100); // dealScore value;
+      const zValue = this.getRandomNum(100000); // amount value;
+      data.push({
+        x: Date.UTC(2019, this.getRandomNum(11), this.getRandomNum(31)), // random date
+        y: yValue,
+        z: zValue,
+        text: `PipelineTest-${num}`,
+        colorIndex: yValue < 70 ? (yValue < 40 ? 5 : 3) : 2,
+      });
+    });
+
+    return data;
+  };
+
+  getChartDefaultParams = (
+    params: Partial<IDefaultParams> = {
+      chartType: 'bubble',
+      chartZoom: 'xy',
+    }
+  ): Partial<IBubbleOptions> => {
+    let defaultOptions: Partial<IBubbleOptions>;
+
+    defaultOptions = {
       chart: {
-        type: 'bubble',
+        type: params.chartType,
         plotBorderWidth: 1,
-        zoomType: 'xy',
+        zoomType: params.chartZoom,
         styledMode: true,
-        className: 'bubble',
+        shadow: false,
+        className: params.chartType,
       },
 
       credits: {
@@ -79,67 +137,101 @@ export class BubbleChartComponent implements OnInit {
         text: null,
       },
     };
-  }
 
-  setXAxisParams() {
+    return defaultOptions;
+  };
+
+  getXAxisParams = (params: IXAxisParams): XAxisOptions | XAxisOptions[] => {
     const format = dateFormat;
 
-    this.chartPartialParams.xAxis = {
+    let xAxisOptions: XAxisOptions | XAxisOptions[];
+
+    xAxisOptions = {
       type: 'datetime',
       endOnTick: false,
-      min: this.axisDates[this.ticksInterval][0],
-      max: this.axisDates[this.ticksInterval][
-        this.axisDates[this.ticksInterval].length - 1
-      ],
+      min: params.chartDates[0],
+      max: params.chartDates[params.chartDates.length - 1],
       labels: {
         staggerLines: 1,
         formatter() {
           return format('%e <br> %b', this.value);
         },
       },
-      tickPositioner: () => this.axisDates[this.ticksInterval],
+      tickPositioner: () => params.chartDates,
     };
-  }
 
-  setYAxisParams() {
-    this.chartPartialParams.yAxis = {
-      className: 'bubble-yAxis',
+    return xAxisOptions;
+  };
+
+  getYAxisParams = (
+    params: Partial<IYAxisParams> = {
+      axisClass: 'bubble-yAxis',
+      axisTitle: 'DEAL SCORE',
+      minVal: 0,
+      maxVal: 100,
+      interval: 20,
+    }
+  ): YAxisOptions | YAxisOptions[] => {
+    let yAxisOptions: YAxisOptions | YAxisOptions[];
+
+    yAxisOptions = {
+      className: params.axisClass,
       startOnTick: true,
       endOnTick: true,
       title: {
-        text: 'DEAL SCORE',
+        text: params.axisTitle,
       },
       labels: {
         format: '{value}',
       },
       maxPadding: 0.2,
-      min: 0,
-      max: 100,
-      tickInterval: 20,
+      min: params.minVal,
+      max: params.maxVal,
+      tickInterval: params.interval,
     };
-  }
 
-  setTooltipParams() {
-    this.chartPartialParams.tooltip = {
+    return yAxisOptions;
+  };
+
+  getTooltipParams = (
+    params: Partial<ITooltipParams> = {
       enabled: true,
       animation: true,
       useHTML: true,
-      crosshairs: false,
-      headerFormat: '<div class="bubble bubble-tooltip">',
-      pointFormat: `
-            <div class="bubble-tooltip__score"><span class="bubble-tooltip__score-text">{point.y}</span></div>
-            <div class="bubble-tooltip__info">
-              <span class="bubble-tooltip__title">{point.text}</span>
-              <span class="bubble-tooltip__amount">€{point.z}</span>
-            </div>
-            <div class="bubble-tooltip__close">x</div>
-          `,
-      footerFormat: '</div>',
       followPointer: false,
-      hideDelay: 0.5,
-      style: {
-        pointerEvents: 'auto',
+    }
+  ): IBubbleTooltip => {
+    const currency = this.currency;
+    let tooltipOptions: IBubbleTooltip;
+    tooltipOptions = {
+      enabled: params.enabled,
+      animation: params.animation,
+      useHTML: params.useHTML,
+      crosshairs: false,
+      formatter() {
+        return `
+        <div class="bubble bubble-tooltip">
+          <div class="bubble-tooltip__score bubble-tooltip__score--${
+            this.colorIndex
+          }"><span class="bubble-tooltip__score-text">${
+          this.point.y
+        }</span></div>
+          <div class="bubble-tooltip__info">
+            <span class="bubble-tooltip__info-title">${this.point.text}</span>
+            <span class="bubble-tooltip__info-amount">${currency.transform(
+              this.point.z,
+              'EUR',
+              'symbol',
+              '4.0'
+            )}</span>
+          </div>
+          <div class="bubble-tooltip__close">x</div>
+        </div>
+        `;
       },
+      followPointer: params.followPointer,
+      hideDelay: 2,
+      padding: 4,
       events: {
         tooltipClick: (tooltip, element: HTMLElement) => {
           if (element.className === 'bubble-tooltip__close') {
@@ -160,57 +252,78 @@ export class BubbleChartComponent implements OnInit {
         tooltipMouseOut: tooltip => {},
       },
     };
-  }
 
-  setPlotOptions() {
-    this.chartPartialParams.plotOptions = {
-      series: {
-        keys: ['x', 'y', 'z', 'text'],
+    return tooltipOptions;
+  };
+
+  getSeriesParams = (
+    params: Partial<ISeriesParams> = {
+      stickyTracking: false,
+      allowPointSelect: false,
+      type: 'bubble',
+      minSize: 10,
+      maxSize: 80,
+    }
+  ): Array<SeriesOptionsType> => {
+    let seriesOptions: Array<SeriesOptionsType>;
+    let lastPointClicked: any;
+    seriesOptions = [
+      {
+        stickyTracking: params.stickyTracking,
+        allowPointSelect: params.allowPointSelect,
+        type: params.type,
+        data: this.chartData,
         dataLabels: {
-          enabled: true,
-          format: '{point.name}',
+          enabled: false,
         },
-        pointInterval: 24 * 3600 * 1000, // one day
-        pointStart: this.axisDates[this.ticksInterval][0],
-        enableMouseTracking: true,
-        stickyTracking: false,
-      },
-      bubble: {
         minSize: 10,
-        maxSize: 50,
+        maxSize: 80,
         point: {
           events: {
-            click() {
+            click(e) {
+              console.log(lastPointClicked);
+              if (e.target !== lastPointClicked) {
+                lastPointClicked = e.target;
+                this.series.chart.tooltip.pin();
+                // if (this.series.chart.tooltip.isPinned) {
+                //   this.series.chart.tooltip.unpin();
+                //   this.series.chart.redraw();
+                //   const interval = setInterval(() => {
+                //     this.series.chart.tooltip.pin();
+                //     clearInterval(interval);
+                //   }, 300);
+                // } else {
+                //   this.series.chart.tooltip.pin();
+                // }
+              } else {
+                // TODO:: When user clicks in other point it not showing the tooltip
+                console.log('test');
+                this.series.chart.redraw();
+                this.series.chart.tooltip.unpin();
+              }
+
               this.select(!this.selected, false);
-              this.series.chart.tooltip.isPinned
-                ? this.series.chart.tooltip.unpin()
-                : this.series.chart.tooltip.pin();
             },
           },
         },
       },
-    };
-  }
-
-  setSeriesParams() {
-    this.chartPartialParams.series = [
-      {
-        allowPointSelect: false,
-        type: 'bubble',
-        data: this.chartData,
-      },
     ];
-  }
 
-  setChartParams() {
-    this.chartParams = this.assign(this.chartParams, this.chartPartialParams);
-  }
+    return seriesOptions;
+  };
 
-  onChangeInterval() {
+  getChartParams = (chartParams: Partial<IBubbleOptions>): IBubbleOptions => {
+    let mergedParams: IBubbleOptions;
+    mergedParams = this.assign(mergedParams, chartParams);
+
+    return mergedParams;
+  };
+
+  onChangeInterval = () => {
     this.ticksInterval =
       this.ticksInterval === 'entireYear' ? 'firstQuarter' : 'entireYear';
 
-    this.setXAxisParams();
-    this.setChartParams();
-  }
+    // this.getXAxisParams();
+    // this.getChartParams();
+  };
 }

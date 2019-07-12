@@ -34,7 +34,7 @@ import {CustomElementsInterface, GlobalVars} from '@components/global.vars';
 import {AppComponent} from '@components/app.component';
 
 // DatePipe
-import {DatePipe} from '@angular/common';
+import {DatePipe, CurrencyPipe} from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -56,6 +56,7 @@ import {DatePipe} from '@angular/common';
     },
     GlobalVars,
     DatePipe,
+    CurrencyPipe,
   ],
   entryComponents: [
     AreaChartComponent,

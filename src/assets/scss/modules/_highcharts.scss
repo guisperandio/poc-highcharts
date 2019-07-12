@@ -7,7 +7,7 @@
  */
 
 // Colors for data series and points.
-$colors: #7cb5ec #434348 #90ed7d #f7a35c #8085e9 #f15c80 #e4d354 #2b908f #f45b5b #91e8e1 !default;
+$colors: #7cb5ec #434348 rgba(43,125,43,1) rgba(231,140,7,1) #8085e9 rgba(187,0,0,1) #e4d354 #2b908f #f45b5b #91e8e1 !default;
 
 // Chart background, point stroke for markers and columns etc
 $background-color: #ffffff !default;
@@ -40,7 +40,7 @@ $axis-labels-font-size: 0.9em !default;
 
 // Tooltip
 $tooltip-border: 1px !default;
-$tooltip-background: $neutral-color-3 !default;
+$tooltip-background: #fefefe !default;
 
 // Axes
 $xaxis-grid-line: 0px !default;
@@ -249,15 +249,6 @@ g.highcharts-series,
 }
 
 /* Series options */
-
-/* Default colors */
-@for $i from 1 through length($colors) {
-  $color: nth($colors, $i);
-  .highcharts-color-#{$i - 1} {
-    fill: $color;
-    stroke: $color;
-  }
-}
 
 .highcharts-area {
     fill-opacity: 0.75;
@@ -771,17 +762,19 @@ div.highcharts-tooltip-0 {
 .bubble {
   .bubble-tooltip {
     display: flex;
-    flex: 1;
+    flex: 0 0 110%;
     flex-direction: row;
+    padding: 4px;
   }
   .bubble-tooltip__score {
     display: flex;
     padding: 7px;
-    background-color: green;
     border-radius: 62px;
     width: 30px;
     height: 30px;
     flex: 0 0 30px;
+    position: relative;
+    top: 4px;
   }
   .bubble-tooltip__score-text {
     text-align: center;
@@ -794,8 +787,11 @@ div.highcharts-tooltip-0 {
     display: flex;
     flex: 1;
     flex-direction: column;
-    width: calc(100% - 30px);
-    margin-left: 10px;
+    width: calc(100% - 20px);
+    margin-left: 6px;
+  }
+  .bubble-tooltip__info-title {
+    font-weight: 600;
   }
   .bubble-tooltip__close {
     padding: 0px 1px 0px 0px;
@@ -803,13 +799,25 @@ div.highcharts-tooltip-0 {
     width: 17px;
     text-align: center;
     position: absolute;
-    top: -15px;
-    right: -18px;
+    top: -10px;
+    right: -11px;
     cursor: pointer;
     height: 17px;
     font-size: 0.7rem;
     font-weight: 600;
     background-color: #427cac;
     color: white;
+  }
+}
+
+/* Default colors */
+@for $i from 1 through length($colors) {
+  $color: nth($colors, $i);
+  .highcharts-color-#{$i - 1} {
+    fill: $color;
+    stroke: $color;
+  }
+  .bubble-tooltip__score--#{$i - 1} {
+    background-color: $color;
   }
 }
