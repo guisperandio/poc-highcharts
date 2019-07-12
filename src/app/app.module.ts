@@ -1,52 +1,41 @@
 import {BrowserModule} from '@angular/platform-browser';
-import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import {NgModule, CUSTOM_ELEMENTS_SCHEMA, Injector} from '@angular/core';
 
 // Highcharts imports
 import {ChartModule, HIGHCHARTS_MODULES} from 'angular-highcharts';
 import * as more from 'highcharts/highcharts-more';
 import * as boost from 'highcharts/modules/boost';
-import * as funnel from 'highcharts/modules/funnel';
-import * as highstock from 'highcharts/modules/stock';
 
 // Highcharts Helpers
 import '@helpers/tooltip.helper';
 
 // Highcharts providers array
 export function highchartsModules() {
-  return [more, boost, funnel, highstock];
+  return [more, boost];
 }
 
 // FlexModule
 import {FlexLayoutModule} from '@angular/flex-layout';
 
 // Angular Custom Elements
-import {ChartComponent} from '@components/chart/chart.component';
-import {AreaChartComponent} from '@components/area-chart/area-chart.component';
-import {PieChartComponent} from '@components/pie-chart/pie-chart.component';
-import {BarChartComponent} from '@components/bar-chart/bar-chart.component';
-import {FunnelChartComponent} from '@components/funnel-chart/funnel-chart.component';
-import {CandleChartComponent} from '@components/candle-chart/candle-chart.component';
-import {LineChartComponent} from '@components/line-chart/line-chart.component';
-import {BubbleChartComponent} from '@components/bubble-chart/bubble-chart.component';
+import {BubbleChartComponent} from '@views/bubble-chart/bubble-chart.component';
+import {BubbleDumbComponent} from '@views/bubble-chart/dumb/bubble-dumb.component';
 
 // Global vars import
-import {CustomElementsInterface, GlobalVars} from '@components/global.vars';
-import {AppComponent} from '@components/app.component';
+import {CustomElementsInterface, GlobalVars} from '@core/global/global.vars';
+import {AppComponent} from './app.component';
+import {ChartComponent} from '@components/chart/chart.component';
 
 // DatePipe
-import {DatePipe, CurrencyPipe} from '@angular/common';
+import {DatePipe, CurrencyPipe, AsyncPipe} from '@angular/common';
+import {createCustomElement} from '@angular/elements';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChartComponent,
-    AreaChartComponent,
-    PieChartComponent,
-    BarChartComponent,
-    FunnelChartComponent,
-    CandleChartComponent,
-    LineChartComponent,
     BubbleChartComponent,
+    BubbleDumbComponent,
   ],
   imports: [BrowserModule, ChartModule, FlexLayoutModule],
   providers: [
@@ -58,24 +47,19 @@ import {DatePipe, CurrencyPipe} from '@angular/common';
     DatePipe,
     CurrencyPipe,
   ],
-  entryComponents: [
-    AreaChartComponent,
-    PieChartComponent,
-    BarChartComponent,
-    FunnelChartComponent,
-    CandleChartComponent,
-    LineChartComponent,
-    BubbleChartComponent,
-  ],
-  bootstrap: [AppComponent],
+  entryComponents: [AppComponent, BubbleChartComponent],
+  bootstrap: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {
-  constructor(private global: GlobalVars) {
+  constructor(private global: GlobalVars, private injector: Injector) {
     const ctElements: Array<CustomElementsInterface> = this.global.components;
     ctElements.forEach(element =>
       customElements.define(element.name, element.constructor)
     );
   }
-  ngDoBootstrap() {}
+  ngDoBootstrap() {
+    const elm = createCustomElement(AppComponent, {injector: this.injector});
+    customElements.define('app-root', elm);
+  }
 }

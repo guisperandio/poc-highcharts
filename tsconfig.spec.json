@@ -12,7 +12,9 @@
     "src/polyfills.ts"
   ],
   "include": [
-    "src/**/*.spec.ts",
+    "src/**/app.component.spec.ts",
+    "src/**/bubble-chart.component.spec.ts",
+    "src/**/chart.component.spec.ts",
     "src/**/*.d.ts"
   ]
 }

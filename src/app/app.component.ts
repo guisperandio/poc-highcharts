@@ -1,9 +1,8 @@
 import {Component} from '@angular/core';
-
+declare const VERSION: string;
 @Component({
-  selector: 'app-root',
   templateUrl: './app.component.html',
 })
 export class AppComponent {
-  title = 'poc-highcharts';
+  title = `Version: ${VERSION}`;
 }

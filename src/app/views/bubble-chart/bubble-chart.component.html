@@ -1,0 +1,6 @@
+<app-bubble-dumb
+  [chartParams]="chartParams"
+  [yearSelected]="yearSelected | async"
+  (emitNewYear)="setNewYear($event)"
+  (emitNewPeriod)="setNewPeriod($event)"
+></app-bubble-dumb>

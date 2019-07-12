@@ -7,8 +7,12 @@
     "outDir": "./out-tsc/app",
     "types": [],
     "paths": {
-      "@helpers/*": ["src/helpers/*"],
-      "@components/*": ["src/app/*"]
+      "@core/*": ["./src/app/core/*"],
+      "@components/*": ["./src/app/core/components/*"],
+      "@interfaces/*": ["./src/app/core/interfaces/*"],
+      "@helpers/*": ["./src/app/core/helpers/*"],
+      "@services/*": ["./src/app/core/services/*"],
+      "@views/*": ["./src/app/views/*"]
     }
   },
   "include": [

@@ -1,73 +1,62 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {
   dateFormat,
   SeriesBubbleDataOptions,
   XAxisOptions,
   YAxisOptions,
   SeriesOptionsType,
+  Point,
+  SeriesPointClickEventObject,
+  Chart,
 } from 'highcharts';
-import {AxisDates} from '@helpers/xaxis.helper';
-import {IBubbleOptions, IBubbleTooltip} from 'src/interfaces/tooltip.interface';
-import {TAxisDates} from 'src/interfaces/xaxis.interface';
+import {AxisDates} from '@services/xaxis.service';
+import {IBubbleOptions, IBubbleTooltip} from '@interfaces/tooltip.interface';
+import {TAxisDates} from '@interfaces/xaxis.interface';
 import {CurrencyPipe} from '@angular/common';
 import {
   IDefaultParams,
   IXAxisParams,
   ITooltipParams,
   ISeriesParams,
-} from 'src/interfaces/charts.interface';
-
-interface IYAxisParams {
-  axisClass: string;
-  axisTitle: string;
-  minVal: number;
-  maxVal: number;
-  interval: number;
-}
+  IYAxisParams,
+} from '@interfaces/charts.interface';
 
 @Component({
   templateUrl: './bubble-chart.component.html',
 })
 export class BubbleChartComponent implements OnInit {
-  @Input() ticksInterval: TAxisDates;
-  @Input() chartData: Array<
+  ticksInterval: TAxisDates = 'firstQuarter';
+  chartData: Array<
     | [string | number, number]
     | [string | number, number, number]
     | SeriesBubbleDataOptions
   > = [];
 
   today: Date = new Date();
+
   chartParams: IBubbleOptions;
   chartPartialParams: Partial<IBubbleOptions>;
+
+  yearSelected: number;
 
   constructor(private axisDates: AxisDates, private currency: CurrencyPipe) {}
 
   ngOnInit() {
-    // TODO: Change this to BehaviorSubject
-    this.axisDates.year = 2019;
-
-    this.ticksInterval = this.ticksInterval
-      ? this.ticksInterval
-      : 'firstQuarter';
+    this.axisDates.updateYearSelection(2019);
 
     this.chartData = this.getChartData();
-
     this.chartPartialParams = this.getChartDefaultParams();
-
-    this.chartPartialParams.xAxis = this.getXAxisParams({
-      chartDates: this.axisDates[this.ticksInterval],
-    });
-
     this.chartPartialParams.yAxis = this.getYAxisParams();
-
+    this.chartPartialParams.series = this.getSeriesParams();
+    this.chartPartialParams.xAxis = this.getXAxisParams({
+      chartDates: this.axisDates.getPeriod(this.ticksInterval),
+    });
     this.chartPartialParams.tooltip = this.getTooltipParams({
       enabled: true,
       animation: true,
       useHTML: true,
       followPointer: false,
     });
-
-    this.chartPartialParams.series = this.getSeriesParams();
 
     this.chartParams = this.getChartParams(this.chartPartialParams);
   }
@@ -77,6 +66,40 @@ export class BubbleChartComponent implements OnInit {
 
   getRandomNum = (max: number): number => {
     return Math.floor(Math.random() * Math.floor(max));
+  };
+
+  onClearChart = (chart: Chart) => {
+    chart.tooltip.unpin();
+    chart.tooltip.hide();
+    chart.series.forEach(serie => {
+      serie.update({
+        type: 'bubble',
+        allowPointSelect: true,
+        className: 'bubble--point-unselected',
+      });
+      serie.points
+        .filter(x => x.selected)
+        .map(x => {
+          x.select(false, false);
+          return x;
+        });
+    });
+  };
+
+  onBlockChart = (chart: Chart) => {
+    chart.tooltip.pin();
+    chart.series[0].update({
+      type: 'bubble',
+      allowPointSelect: false,
+      className: 'bubble--point-selected',
+      marker: {
+        states: {
+          hover: {
+            enabled: false,
+          },
+        },
+      },
+    });
   };
 
   getChartData = (
@@ -114,7 +137,7 @@ export class BubbleChartComponent implements OnInit {
     }
   ): Partial<IBubbleOptions> => {
     let defaultOptions: Partial<IBubbleOptions>;
-
+    const onClearChart = this.onClearChart;
     defaultOptions = {
       chart: {
         type: params.chartType,
@@ -123,6 +146,13 @@ export class BubbleChartComponent implements OnInit {
         styledMode: true,
         shadow: false,
         className: params.chartType,
+        events: {
+          click() {
+            if (this.tooltip.isPinned) {
+              onClearChart(this);
+            }
+          },
+        },
       },
 
       credits: {
@@ -177,7 +207,7 @@ export class BubbleChartComponent implements OnInit {
     yAxisOptions = {
       className: params.axisClass,
       startOnTick: true,
-      endOnTick: true,
+      endOnTick: false,
       title: {
         text: params.axisTitle,
       },
@@ -202,6 +232,7 @@ export class BubbleChartComponent implements OnInit {
     }
   ): IBubbleTooltip => {
     const currency = this.currency;
+    const onClearChart = this.onClearChart;
     let tooltipOptions: IBubbleTooltip;
     tooltipOptions = {
       enabled: params.enabled,
@@ -235,18 +266,7 @@ export class BubbleChartComponent implements OnInit {
       events: {
         tooltipClick: (tooltip, element: HTMLElement) => {
           if (element.className === 'bubble-tooltip__close') {
-            if (tooltip.isPinned) {
-              tooltip.unpin();
-            }
-            tooltip.hide();
-            tooltip.chart.series.forEach(serie => {
-              serie.points
-                .filter(x => x.selected)
-                .map(point => {
-                  point.select(false, false);
-                  return point;
-                });
-            });
+            onClearChart(tooltip.chart);
           }
         },
         tooltipMouseOut: tooltip => {},
@@ -259,50 +279,39 @@ export class BubbleChartComponent implements OnInit {
   getSeriesParams = (
     params: Partial<ISeriesParams> = {
       stickyTracking: false,
-      allowPointSelect: false,
+      allowPointSelect: true,
       type: 'bubble',
       minSize: 10,
       maxSize: 80,
     }
   ): Array<SeriesOptionsType> => {
     let seriesOptions: Array<SeriesOptionsType>;
-    let lastPointClicked: any;
+    let lastPointClicked: string;
+    const onBlockChart = this.onBlockChart;
     seriesOptions = [
       {
         stickyTracking: params.stickyTracking,
         allowPointSelect: params.allowPointSelect,
         type: params.type,
         data: this.chartData,
+        className: 'bubble--point-unselected',
         dataLabels: {
           enabled: false,
+        },
+        marker: {
+          states: {
+            hover: {
+              enabled: true,
+            },
+          },
         },
         minSize: 10,
         maxSize: 80,
         point: {
           events: {
-            click(e) {
-              console.log(lastPointClicked);
-              if (e.target !== lastPointClicked) {
-                lastPointClicked = e.target;
-                this.series.chart.tooltip.pin();
-                // if (this.series.chart.tooltip.isPinned) {
-                //   this.series.chart.tooltip.unpin();
-                //   this.series.chart.redraw();
-                //   const interval = setInterval(() => {
-                //     this.series.chart.tooltip.pin();
-                //     clearInterval(interval);
-                //   }, 300);
-                // } else {
-                //   this.series.chart.tooltip.pin();
-                // }
-              } else {
-                // TODO:: When user clicks in other point it not showing the tooltip
-                console.log('test');
-                this.series.chart.redraw();
-                this.series.chart.tooltip.unpin();
-              }
-
-              this.select(!this.selected, false);
+            click() {
+              onBlockChart(this.series.chart);
+              lastPointClicked = this.id;
             },
           },
         },
@@ -319,11 +328,23 @@ export class BubbleChartComponent implements OnInit {
     return mergedParams;
   };
 
-  onChangeInterval = () => {
-    this.ticksInterval =
-      this.ticksInterval === 'entireYear' ? 'firstQuarter' : 'entireYear';
+  setNewYear = (year: number) => {
+    this.axisDates.updateYearSelection(year);
 
-    // this.getXAxisParams();
-    // this.getChartParams();
+    this.chartPartialParams.xAxis = this.getXAxisParams({
+      chartDates: this.axisDates.getPeriod(this.ticksInterval),
+    });
+
+    this.chartParams = this.getChartParams(this.chartPartialParams);
+  };
+
+  setNewPeriod = (period: TAxisDates) => {
+    this.ticksInterval = period;
+
+    this.chartPartialParams.xAxis = this.getXAxisParams({
+      chartDates: this.axisDates.getPeriod((this.ticksInterval = period)),
+    });
+
+    this.chartParams = this.getChartParams(this.chartPartialParams);
   };
 }

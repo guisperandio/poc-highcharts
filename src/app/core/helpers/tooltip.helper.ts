@@ -1,13 +1,9 @@
 import * as Highcharts from 'highcharts';
-import {ITooltip} from 'src/interfaces/tooltip.interface';
+import {ITooltip} from '@interfaces/tooltip.interface';
 
 declare module 'highcharts' {
   interface Tooltip {
     isPinned: boolean;
-
-    _hide(): void;
-    _move(x: number, y: number, anchorX: number, anchorY: number): void;
-    _refresh(pointOrPoints: Point | Point[], mouseEvent?: Event): void;
 
     pin(): void;
     unpin(): void;
@@ -16,24 +12,24 @@ declare module 'highcharts' {
 
 Highcharts.Tooltip.prototype.isPinned = false;
 
-Highcharts.Tooltip.prototype._hide = () => {};
-Highcharts.Tooltip.prototype._move = () => {};
-Highcharts.Tooltip.prototype._refresh = () => {};
+const dHide = Highcharts.Tooltip.prototype.hide;
+const dMove = Highcharts.Tooltip.prototype.move;
+const dRefresh = Highcharts.Tooltip.prototype.refresh;
 
 const H = Highcharts.Tooltip.prototype;
 
 Highcharts.Tooltip.prototype.pin = () => {
-  [H.hide, H._hide] = [H._hide, H.hide];
-  [H.move, H._move] = [H._move, H.move];
-  [H.refresh, H._refresh] = [H._refresh, H.refresh];
+  H.hide = () => {};
+  H.move = () => {};
+  H.refresh = () => {};
 
   H.isPinned = true;
 };
 
 Highcharts.Tooltip.prototype.unpin = () => {
-  [H.hide, H._hide] = [H._hide, H.hide];
-  [H.move, H._move] = [H._move, H.move];
-  [H.refresh, H._refresh] = [H._refresh, H.refresh];
+  H.hide = dHide;
+  H.move = dMove;
+  H.refresh = dRefresh;
 
   H.isPinned = false;
 };

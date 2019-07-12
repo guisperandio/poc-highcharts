@@ -32,7 +32,6 @@ $highlight-color-20: #ccd6eb !default; // Ticks and axis line.
 $highlight-color-10: #e6ebf5 !default; // Pressed button, color axis min color.
 
 // Fonts
-$font-family: 'Poppins', sans-serif !default;
 $title-font-size: 1.5em !default;
 $subtitle-font-size: 1em !default;
 $legend-font-size: 1em !default;
@@ -286,6 +285,7 @@ g.highcharts-series,
 .highcharts-series:not(.highcharts-pie-series) .highcharts-point-select {
     fill-opacity: 0.8;
     transition: fill-opacity 250ms;
+    opacity: 0.9;
 }
 .highcharts-column-series rect.highcharts-point {
     // rect to prevent stroke on 3D columns
@@ -759,6 +759,7 @@ text.highcharts-drilldown-data-label,
 div.highcharts-tooltip-0 {
   filter: none !important;
 }
+
 .bubble {
   .bubble-tooltip {
     display: flex;
@@ -807,6 +808,11 @@ div.highcharts-tooltip-0 {
     font-weight: 600;
     background-color: #427cac;
     color: white;
+  }
+  .bubble--point-selected {
+    .highcharts-point:not(.highcharts-point-select) {
+      opacity: 0.2;
+    }
   }
 }
 

@@ -11,6 +11,11 @@
     width: 100%;
   }
 
+  .container__body-portlet {
+    padding: $padding;
+    @include box-shadow($defaultShadow);
+  }
+
   .container__body-portlet--6 {
     width: 50%;
   }

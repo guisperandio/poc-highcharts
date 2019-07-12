@@ -1,0 +1,8 @@
+.forms {
+  &.forms--bubble-filters {
+    display: flex;
+    flex: 1;
+    flex-flow: row-reverse;
+  }
+}
+@import 'forms/select';
