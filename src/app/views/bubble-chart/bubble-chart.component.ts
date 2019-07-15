@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {
-  dateFormat,
   SeriesBubbleDataOptions,
   XAxisOptions,
   YAxisOptions,
@@ -23,14 +22,13 @@ import {
   templateUrl: './bubble-chart.component.html',
 })
 export class BubbleChartComponent implements OnInit {
+  today: Date = new Date();
   ticksInterval: TAxisDates = 'firstQuarter';
   chartData: Array<
     | [string | number, number]
     | [string | number, number, number]
     | SeriesBubbleDataOptions
   > = [];
-
-  today: Date = new Date();
 
   chartParams: IBubbleOptions;
   chartPartialParams: Partial<IBubbleOptions>;
@@ -42,7 +40,7 @@ export class BubbleChartComponent implements OnInit {
   ngOnInit() {
     this.axisDates.updateYearSelection(2019);
 
-    this.chartData = this.getChartData(300);
+    this.chartData = this.getChartData(50);
     this.chartPartialParams = this.getChartDefaultParams();
     this.chartPartialParams.yAxis = this.getYAxisParams();
     this.chartPartialParams.series = this.getSeriesParams();
@@ -138,12 +136,13 @@ export class BubbleChartComponent implements OnInit {
     const onClearChart = this.onClearChart;
     defaultOptions = {
       chart: {
-        type: params.chartType,
-        plotBorderWidth: 1,
-        zoomType: params.chartZoom,
-        styledMode: true,
-        shadow: false,
+        animation: true,
         className: params.chartType,
+        plotBorderWidth: 1,
+        shadow: false,
+        styledMode: true,
+        type: params.chartType,
+        zoomType: params.chartZoom,
         events: {
           click() {
             if (this.tooltip.isPinned) {
@@ -170,22 +169,32 @@ export class BubbleChartComponent implements OnInit {
   };
 
   getXAxisParams = (params: IXAxisParams): XAxisOptions | XAxisOptions[] => {
-    const format = dateFormat;
-
     let xAxisOptions: XAxisOptions | XAxisOptions[];
 
     xAxisOptions = {
       type: 'datetime',
-      endOnTick: false,
-      min: params.chartDates[0],
-      max: params.chartDates[params.chartDates.length - 1],
-      labels: {
-        staggerLines: 1,
-        formatter() {
-          return format('%e <br> %b', this.value);
+      startOnTick: true,
+      endOnTick: true,
+      min: Date.UTC(2019, 6, 1),
+      max: Date.UTC(2019, 8, 30),
+      minTickInterval: 24 * 3600 * 1000,
+      minRange: 24 * 3600 * 1000,
+      tickPixelInterval: 215,
+      tickPositioner() {
+        const ticks = this.tickPositions;
+        return this.tickPositions;
+      },
+      dateTimeLabelFormats: {
+        day: {
+          main: '%e. %b',
+        },
+        month: {
+          main: '%e. %b',
+        },
+        year: {
+          main: '%b',
         },
       },
-      tickPositioner: () => params.chartDates,
     };
 
     return xAxisOptions;
@@ -288,6 +297,7 @@ export class BubbleChartComponent implements OnInit {
     const onBlockChart = this.onBlockChart;
     seriesOptions = [
       {
+        pointStart: Date.UTC(2019, 6, 1),
         stickyTracking: params.stickyTracking,
         allowPointSelect: params.allowPointSelect,
         type: params.type,
