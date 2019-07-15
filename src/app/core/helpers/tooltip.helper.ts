@@ -8,6 +8,11 @@ declare module 'highcharts' {
     pin(): void;
     unpin(): void;
   }
+
+  interface Axis {
+    userMax: number;
+    userMin: number;
+  }
 }
 
 Highcharts.Tooltip.prototype.isPinned = false;

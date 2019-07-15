@@ -184,7 +184,7 @@ export class BubbleChartComponent implements OnInit {
       minRange: 24 * 3600 * 1000,
       tickPixelInterval: 211,
       tickPositioner() {
-        if (this['userMax']) {
+        if (this.userMax) {
           return this.tickPositions;
         } else {
           const ticks = [
