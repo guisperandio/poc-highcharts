@@ -5,8 +5,6 @@ import {
   XAxisOptions,
   YAxisOptions,
   SeriesOptionsType,
-  Point,
-  SeriesPointClickEventObject,
   Chart,
 } from 'highcharts';
 import {AxisDates} from '@services/xaxis.service';
@@ -44,7 +42,7 @@ export class BubbleChartComponent implements OnInit {
   ngOnInit() {
     this.axisDates.updateYearSelection(2019);
 
-    this.chartData = this.getChartData();
+    this.chartData = this.getChartData(300);
     this.chartPartialParams = this.getChartDefaultParams();
     this.chartPartialParams.yAxis = this.getYAxisParams();
     this.chartPartialParams.series = this.getSeriesParams();
