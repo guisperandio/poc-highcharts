@@ -9,7 +9,7 @@ import {
 import {AxisDates} from '@services/xaxis.service';
 import {IBubbleOptions, IBubbleTooltip} from '@interfaces/tooltip.interface';
 import {TAxisDates} from '@interfaces/xaxis.interface';
-import {CurrencyPipe} from '@angular/common';
+import {CurrencyPipe, DatePipe} from '@angular/common';
 import {
   IDefaultParams,
   IXAxisParams,
@@ -22,7 +22,7 @@ import {
   templateUrl: './bubble-chart.component.html',
 })
 export class BubbleChartComponent implements OnInit {
-  today: Date = new Date();
+  today: Date = new Date(new Date().setHours(1, 0, 0, 0));
   ticksInterval: TAxisDates = 'firstQuarter';
   chartData: Array<
     | [string | number, number]
@@ -35,18 +35,20 @@ export class BubbleChartComponent implements OnInit {
 
   yearSelected: number;
 
-  constructor(private axisDates: AxisDates, private currency: CurrencyPipe) {}
+  constructor(
+    private axisDates: AxisDates,
+    private currency: CurrencyPipe,
+    private date: DatePipe
+  ) {}
 
   ngOnInit() {
     this.axisDates.updateYearSelection(2019);
 
-    this.chartData = this.getChartData(50);
+    this.chartData = this.getChartData(75);
     this.chartPartialParams = this.getChartDefaultParams();
     this.chartPartialParams.yAxis = this.getYAxisParams();
     this.chartPartialParams.series = this.getSeriesParams();
-    this.chartPartialParams.xAxis = this.getXAxisParams({
-      chartDates: this.axisDates.getPeriod(this.ticksInterval),
-    });
+    this.chartPartialParams.xAxis = this.getXAxisParams();
     this.chartPartialParams.tooltip = this.getTooltipParams({
       enabled: true,
       animation: true,
@@ -150,6 +152,7 @@ export class BubbleChartComponent implements OnInit {
             }
           },
         },
+        spacingTop: 19,
       },
 
       credits: {
@@ -168,7 +171,7 @@ export class BubbleChartComponent implements OnInit {
     return defaultOptions;
   };
 
-  getXAxisParams = (params: IXAxisParams): XAxisOptions | XAxisOptions[] => {
+  getXAxisParams = (): XAxisOptions | XAxisOptions[] => {
     let xAxisOptions: XAxisOptions | XAxisOptions[];
 
     xAxisOptions = {
@@ -179,10 +182,23 @@ export class BubbleChartComponent implements OnInit {
       max: Date.UTC(2019, 8, 30),
       minTickInterval: 24 * 3600 * 1000,
       minRange: 24 * 3600 * 1000,
-      tickPixelInterval: 215,
+      tickPixelInterval: 211,
       tickPositioner() {
-        const ticks = this.tickPositions;
-        return this.tickPositions;
+        if (this['userMax']) {
+          return this.tickPositions;
+        } else {
+          const ticks = [
+            Date.UTC(2019, 6, 1),
+            Date.UTC(2019, 6, 31),
+            Date.UTC(2019, 7, 31),
+            Date.UTC(2019, 8, 30),
+          ];
+          ticks['info'] = {
+            unitName: 'day', // unitName: "day",
+            higherRanks: {}, // Omitting this would break things
+          };
+          return ticks;
+        }
       },
       dateTimeLabelFormats: {
         day: {
@@ -195,6 +211,25 @@ export class BubbleChartComponent implements OnInit {
           main: '%b',
         },
       },
+      plotLines: [
+        {
+          value: this.today.getTime(),
+          label: {
+            align: 'center',
+            text: `
+              <span class="highcharts-plot-line-label--bold">
+                Today:
+              </span>
+              ${this.date.transform(this.today)}`,
+            textAlign: 'center',
+            useHTML: true,
+            verticalAlign: 'top',
+            x: 0,
+            y: -7,
+            rotation: 0,
+          },
+        },
+      ],
     };
 
     return xAxisOptions;
@@ -337,22 +372,10 @@ export class BubbleChartComponent implements OnInit {
   };
 
   setNewYear = (year: number) => {
-    this.axisDates.updateYearSelection(year);
-
-    this.chartPartialParams.xAxis = this.getXAxisParams({
-      chartDates: this.axisDates.getPeriod(this.ticksInterval),
-    });
-
     this.chartParams = this.getChartParams(this.chartPartialParams);
   };
 
   setNewPeriod = (period: TAxisDates) => {
-    this.ticksInterval = period;
-
-    this.chartPartialParams.xAxis = this.getXAxisParams({
-      chartDates: this.axisDates.getPeriod((this.ticksInterval = period)),
-    });
-
     this.chartParams = this.getChartParams(this.chartPartialParams);
   };
 }
