@@ -16,8 +16,22 @@
     @include box-shadow($defaultShadow);
   }
 
+  .container__body-portlet--4 {
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+
   .container__body-portlet--6 {
-    width: 50%;
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  .container__body-portlet--8 {
+    -ms-flex: 0 0 66.666667%;
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
   }
 }
 

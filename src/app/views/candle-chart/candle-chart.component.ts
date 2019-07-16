@@ -22,7 +22,7 @@ export class CandleChartComponent implements OnInit {
         {
           type: 'candlestick',
           name: 'AAPL Stock Price',
-          data: this.getChartData(10),
+          data: this.getChartData(400),
           dataGrouping: {
             units: [
               [

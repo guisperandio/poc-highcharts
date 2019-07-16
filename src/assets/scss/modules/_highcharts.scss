@@ -247,6 +247,12 @@ g.highcharts-series,
     opacity: 0.2;
 }
 
+.highcharts-series-hover {
+  .highcharts-point:not(.highcharts-point-hover) {
+    opacity: 0.6;
+  }
+}
+
 /* Series options */
 
 .highcharts-area {

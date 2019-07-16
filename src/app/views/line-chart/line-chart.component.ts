@@ -13,7 +13,6 @@ export class LineChartComponent implements OnInit {
       title: {
         text: 'Solar Employment Growth by Sector, 2010-2016',
       },
-
       subtitle: {
         text: 'Source: thesolarfoundation.com',
       },
@@ -42,27 +41,27 @@ export class LineChartComponent implements OnInit {
         {
           type: 'line',
           name: 'Installation',
-          data: this.getChartData(20),
+          data: this.getChartData(5),
         },
         {
           type: 'line',
           name: 'Manufacturing',
-          data: this.getChartData(20),
+          data: this.getChartData(5),
         },
         {
           type: 'line',
           name: 'Sales & Distribution',
-          data: this.getChartData(20),
+          data: this.getChartData(5),
         },
         {
           type: 'line',
           name: 'Project Development',
-          data: this.getChartData(20),
+          data: this.getChartData(5),
         },
         {
           type: 'line',
           name: 'Other',
-          data: this.getChartData(20),
+          data: this.getChartData(5),
         },
       ],
 

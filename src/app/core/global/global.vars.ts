@@ -6,7 +6,7 @@ import {PieChartComponent} from '@views/pie-chart/pie-chart.component';
 import {BarChartComponent} from '@views/bar-chart/bar-chart.component';
 import {LineChartComponent} from '@views/line-chart/line-chart.component';
 import {FunnelChartComponent} from '@views/funnel-chart/funnel-chart.component';
-import {CandleChartComponent} from '@views/candle-chart copy/candle-chart.component';
+import {CandleChartComponent} from '@views/candle-chart/candle-chart.component';
 
 export interface CustomElementsInterface {
   name: string;

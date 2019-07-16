@@ -1,5 +1,5 @@
 import {Component, OnChanges, Input, OnInit} from '@angular/core';
-import {ChangeDetectionStrategy} from '@angular/compiler/src/core';
+import {ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
   selector: 'app-line-dumb',
