@@ -247,7 +247,7 @@ g.highcharts-series,
     opacity: 0.2;
 }
 
-.highcharts-series-hover {
+.highcharts-series-hover, .highcharts-series-inactive {
   .highcharts-point:not(.highcharts-point-hover) {
     opacity: 0.6;
   }
@@ -829,6 +829,7 @@ div.highcharts-tooltip-0 {
       opacity: 0.2;
     }
   }
+
 }
 
 /* Default colors */

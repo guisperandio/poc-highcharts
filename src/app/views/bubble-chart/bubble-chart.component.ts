@@ -104,14 +104,15 @@ export class BubbleChartComponent implements OnInit {
 
   onBlockChart = (chart: Chart) => {
     chart.tooltip.pin();
-    chart.series[0].update(
-      this.onUpdateParams({
-        allowPointSelect: true,
-        className: 'bubble--point-selected',
-        hover: false,
-      }),
-      true
-    );
+    const options = this.onUpdateParams({
+      allowPointSelect: false,
+      className: 'bubble--point-selected',
+      hover: false,
+    });
+    // TODO:: Is not blocking the right serie
+    chart.series.forEach(x => {
+      x.update(options, true);
+    });
   };
 
   getChartData = (
@@ -344,6 +345,13 @@ export class BubbleChartComponent implements OnInit {
   ): Array<SeriesOptionsType> => {
     const seriesOptions: Array<SeriesOptionsType> = [
       this.series.getSeriesOptions({
+        id: 'closed',
+        name: 'Closed',
+        params,
+        chartData: this.getChartData(9, 'closed'),
+        callback: this.onBlockChart,
+      }),
+      this.series.getSeriesOptions({
         id: 'commit',
         name: 'Commit',
         params,
@@ -370,13 +378,6 @@ export class BubbleChartComponent implements OnInit {
         name: 'Ommited',
         params,
         chartData: this.getChartData(10),
-        callback: this.onBlockChart,
-      }),
-      this.series.getSeriesOptions({
-        id: 'closed',
-        name: 'Closed',
-        params,
-        chartData: this.getChartData(9, 'closed'),
         callback: this.onBlockChart,
       }),
     ];
