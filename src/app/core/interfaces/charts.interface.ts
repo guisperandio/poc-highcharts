@@ -13,6 +13,10 @@ export interface IYAxisParams {
 export interface IDefaultParams {
   chartType: string;
   chartZoom: 'x' | 'y' | 'xy';
+  enableBoost: boolean;
+  useGPU: boolean;
+  usePreallocated: boolean;
+  allowForce: boolean;
 }
 
 export interface ITooltipParams {
@@ -28,4 +32,11 @@ export interface ISeriesParams {
   type: any;
   minSize: number;
   maxSize: number;
+}
+
+export interface IUpdateParams {
+  type: any;
+  allowPointSelect: boolean;
+  className: string;
+  hover: boolean;
 }

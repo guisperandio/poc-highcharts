@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {
-  dateFormat,
   SeriesBubbleDataOptions,
   XAxisOptions,
   YAxisOptions,
@@ -10,45 +9,42 @@ import {
 import {AxisDates} from '@services/xaxis.service';
 import {IBubbleOptions, IBubbleTooltip} from '@interfaces/tooltip.interface';
 import {TAxisDates} from '@interfaces/xaxis.interface';
-import {CurrencyPipe} from '@angular/common';
+import {CurrencyPipe, DatePipe} from '@angular/common';
 import {
   IDefaultParams,
-  IXAxisParams,
   ITooltipParams,
   ISeriesParams,
   IYAxisParams,
+  IUpdateParams,
 } from '@interfaces/charts.interface';
+import {GeneralHelper} from '@core/helpers/general.helper';
 
 @Component({
   templateUrl: './bubble-chart.component.html',
 })
 export class BubbleChartComponent implements OnInit {
-  ticksInterval: TAxisDates = 'firstQuarter';
   chartData: Array<
     | [string | number, number]
     | [string | number, number, number]
     | SeriesBubbleDataOptions
   > = [];
 
-  today: Date = new Date();
-
   chartParams: IBubbleOptions;
   chartPartialParams: Partial<IBubbleOptions>;
 
-  yearSelected: number;
-
-  constructor(private axisDates: AxisDates, private currency: CurrencyPipe) {}
+  constructor(
+    private axisDates: AxisDates,
+    private generalHelper: GeneralHelper,
+    private currency: CurrencyPipe,
+    private date: DatePipe
+  ) {}
 
   ngOnInit() {
-    this.axisDates.updateYearSelection(2019);
-
-    this.chartData = this.getChartData(300);
+    this.chartData = this.getChartData(25);
     this.chartPartialParams = this.getChartDefaultParams();
     this.chartPartialParams.yAxis = this.getYAxisParams();
     this.chartPartialParams.series = this.getSeriesParams();
-    this.chartPartialParams.xAxis = this.getXAxisParams({
-      chartDates: this.axisDates.getPeriod(this.ticksInterval),
-    });
+    this.chartPartialParams.xAxis = this.getXAxisParams();
     this.chartPartialParams.tooltip = this.getTooltipParams({
       enabled: true,
       animation: true,
@@ -59,22 +55,35 @@ export class BubbleChartComponent implements OnInit {
     this.chartParams = this.getChartParams(this.chartPartialParams);
   }
 
-  assign = (original: IBubbleOptions, changes: Partial<IBubbleOptions>) =>
-    Object.assign({}, original, changes) as IBubbleOptions;
+  onUpdateParams = (
+    params: Partial<IUpdateParams> = {
+      type: 'bubble',
+      allowPointSelect: true,
+      className: 'bubble--point-unselected',
+      hover: true,
+    }
+  ): SeriesOptionsType => {
+    const chartUpdate = {
+      type: params.type,
+      allowPointSelect: params.allowPointSelect,
+      className: params.className,
+      marker: {
+        states: {
+          hover: {
+            enabled: params.hover,
+          },
+        },
+      },
+    };
 
-  getRandomNum = (max: number): number => {
-    return Math.floor(Math.random() * Math.floor(max));
+    return chartUpdate;
   };
 
   onClearChart = (chart: Chart) => {
     chart.tooltip.unpin();
     chart.tooltip.hide();
     chart.series.forEach(serie => {
-      serie.update({
-        type: 'bubble',
-        allowPointSelect: true,
-        className: 'bubble--point-unselected',
-      });
+      serie.update(this.onUpdateParams(), true);
       serie.points
         .filter(x => x.selected)
         .map(x => {
@@ -86,18 +95,14 @@ export class BubbleChartComponent implements OnInit {
 
   onBlockChart = (chart: Chart) => {
     chart.tooltip.pin();
-    chart.series[0].update({
-      type: 'bubble',
-      allowPointSelect: false,
-      className: 'bubble--point-selected',
-      marker: {
-        states: {
-          hover: {
-            enabled: false,
-          },
-        },
-      },
-    });
+    chart.series[0].update(
+      this.onUpdateParams({
+        allowPointSelect: true,
+        className: 'bubble--point-selected',
+        hover: false,
+      }),
+      true
+    );
   };
 
   getChartData = (
@@ -114,14 +119,18 @@ export class BubbleChartComponent implements OnInit {
     > = [];
 
     [...Array(arraySize).keys()].forEach(num => {
-      const yValue = this.getRandomNum(100); // dealScore value;
-      const zValue = this.getRandomNum(100000); // amount value;
+      const dealScore = this.generalHelper.getRandomNum(100);
+      const amount = this.generalHelper.getRandomNum(100000);
       data.push({
-        x: Date.UTC(2019, this.getRandomNum(11), this.getRandomNum(31)), // random date
-        y: yValue,
-        z: zValue,
+        x: Date.UTC(
+          2019,
+          this.generalHelper.getRandomNum(11),
+          this.generalHelper.getRandomNum(31)
+        ), // random date
+        y: dealScore,
+        z: amount,
         text: `PipelineTest-${num}`,
-        colorIndex: yValue < 70 ? (yValue < 40 ? 5 : 3) : 2,
+        colorIndex: dealScore < 70 ? (dealScore < 40 ? 5 : 3) : 2,
       });
     });
 
@@ -132,18 +141,23 @@ export class BubbleChartComponent implements OnInit {
     params: Partial<IDefaultParams> = {
       chartType: 'bubble',
       chartZoom: 'xy',
+      enableBoost: false,
+      useGPU: false,
+      usePreallocated: false,
+      allowForce: false,
     }
   ): Partial<IBubbleOptions> => {
     let defaultOptions: Partial<IBubbleOptions>;
     const onClearChart = this.onClearChart;
     defaultOptions = {
       chart: {
-        type: params.chartType,
-        plotBorderWidth: 1,
-        zoomType: params.chartZoom,
-        styledMode: true,
-        shadow: false,
+        animation: true,
         className: params.chartType,
+        plotBorderWidth: 1,
+        shadow: false,
+        styledMode: true,
+        type: params.chartType,
+        zoomType: params.chartZoom,
         events: {
           click() {
             if (this.tooltip.isPinned) {
@@ -151,6 +165,14 @@ export class BubbleChartComponent implements OnInit {
             }
           },
         },
+        spacingTop: 19,
+      },
+
+      boost: {
+        enabled: params.enableBoost,
+        useGPUTranslations: params.useGPU,
+        usePreallocated: params.usePreallocated,
+        allowForce: params.allowForce,
       },
 
       credits: {
@@ -169,23 +191,56 @@ export class BubbleChartComponent implements OnInit {
     return defaultOptions;
   };
 
-  getXAxisParams = (params: IXAxisParams): XAxisOptions | XAxisOptions[] => {
-    const format = dateFormat;
-
+  getXAxisParams = (): XAxisOptions | XAxisOptions[] => {
     let xAxisOptions: XAxisOptions | XAxisOptions[];
+    const ticks = this.axisDates.ticks;
+    const today = this.axisDates.today;
+    today.setHours(1, 0, 0, 0);
 
     xAxisOptions = {
       type: 'datetime',
-      endOnTick: false,
-      min: params.chartDates[0],
-      max: params.chartDates[params.chartDates.length - 1],
-      labels: {
-        staggerLines: 1,
-        formatter() {
-          return format('%e <br> %b', this.value);
+      startOnTick: true,
+      endOnTick: true,
+      minTickInterval: 24 * 3600 * 1000,
+      minRange: 24 * 3600 * 1000,
+      tickPixelInterval: 211,
+      tickPositioner() {
+        if (this.userMax) {
+          return this.tickPositions;
+        } else {
+          return ticks;
+        }
+      },
+      dateTimeLabelFormats: {
+        day: {
+          main: '%e. %b',
+        },
+        month: {
+          main: '%e. %b',
+        },
+        year: {
+          main: '%b',
         },
       },
-      tickPositioner: () => params.chartDates,
+      plotLines: [
+        {
+          value: today.getTime(),
+          label: {
+            align: 'center',
+            text: `
+              <span class="highcharts-plot-line-label--bold">
+                Today:
+              </span>
+              ${this.date.transform(today)}`,
+            textAlign: 'center',
+            useHTML: true,
+            verticalAlign: 'top',
+            x: 0,
+            y: -7,
+            rotation: 0,
+          },
+        },
+      ],
     };
 
     return xAxisOptions;
@@ -284,7 +339,6 @@ export class BubbleChartComponent implements OnInit {
     }
   ): Array<SeriesOptionsType> => {
     let seriesOptions: Array<SeriesOptionsType>;
-    let lastPointClicked: string;
     const onBlockChart = this.onBlockChart;
     seriesOptions = [
       {
@@ -296,20 +350,12 @@ export class BubbleChartComponent implements OnInit {
         dataLabels: {
           enabled: false,
         },
-        marker: {
-          states: {
-            hover: {
-              enabled: true,
-            },
-          },
-        },
         minSize: 10,
         maxSize: 80,
         point: {
           events: {
             click() {
               onBlockChart(this.series.chart);
-              lastPointClicked = this.id;
             },
           },
         },
@@ -321,28 +367,16 @@ export class BubbleChartComponent implements OnInit {
 
   getChartParams = (chartParams: Partial<IBubbleOptions>): IBubbleOptions => {
     let mergedParams: IBubbleOptions;
-    mergedParams = this.assign(mergedParams, chartParams);
+    mergedParams = this.generalHelper.assign(mergedParams, chartParams);
 
     return mergedParams;
   };
 
   setNewYear = (year: number) => {
-    this.axisDates.updateYearSelection(year);
-
-    this.chartPartialParams.xAxis = this.getXAxisParams({
-      chartDates: this.axisDates.getPeriod(this.ticksInterval),
-    });
-
     this.chartParams = this.getChartParams(this.chartPartialParams);
   };
 
   setNewPeriod = (period: TAxisDates) => {
-    this.ticksInterval = period;
-
-    this.chartPartialParams.xAxis = this.getXAxisParams({
-      chartDates: this.axisDates.getPeriod((this.ticksInterval = period)),
-    });
-
     this.chartParams = this.getChartParams(this.chartPartialParams);
   };
 }

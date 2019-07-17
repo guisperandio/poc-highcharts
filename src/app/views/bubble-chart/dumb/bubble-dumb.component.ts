@@ -6,7 +6,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import {ChangeDetectionStrategy} from '@angular/compiler/src/core';
+import {ChangeDetectionStrategy} from '@angular/core';
 import {IBubbleOptions} from '@core/interfaces/tooltip.interface';
 import {TAxisDates} from '@core/interfaces/xaxis.interface';
 

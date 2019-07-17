@@ -5,16 +5,22 @@
     "types": [
       "jasmine",
       "node"
-    ]
+    ],
+    "paths": {
+      "@core/*": ["./src/app/core/*"],
+      "@components/*": ["./src/app/core/components/*"],
+      "@helpers/*": ["./src/app/core/helpers/*"],
+      "@interfaces/*": ["./src/app/core/interfaces/*"],
+      "@services/*": ["./src/app/core/services/*"],
+      "@views/*": ["./src/app/views/*"]
+    }
   },
   "files": [
     "src/test.ts",
     "src/polyfills.ts"
   ],
   "include": [
-    "src/**/app.component.spec.ts",
-    "src/**/bubble-chart.component.spec.ts",
-    "src/**/chart.component.spec.ts",
+    "src/**/*.spec.ts",
     "src/**/*.d.ts"
   ]
 }

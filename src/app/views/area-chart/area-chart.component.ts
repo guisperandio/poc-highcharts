@@ -13,6 +13,7 @@ export class AreaChartComponent implements OnInit {
     this.chartParams = {
       chart: {
         type: 'areaspline',
+        animation: true,
       },
       title: {
         text: 'Average fruit consumption during one week',
@@ -67,12 +68,12 @@ export class AreaChartComponent implements OnInit {
         {
           type: 'area',
           name: 'John',
-          data: this.getChartData(50),
+          data: this.getChartData(15),
         },
         {
           type: 'area',
           name: 'Jane',
-          data: this.getChartData(50),
+          data: this.getChartData(15),
         },
       ],
     };

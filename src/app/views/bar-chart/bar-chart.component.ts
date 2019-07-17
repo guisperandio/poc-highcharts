@@ -26,17 +26,17 @@ export class BarChartComponent implements OnInit {
         {
           type: 'column',
           name: 'John',
-          data: this.getChartData(800),
+          data: this.getChartData(10),
         },
         {
           type: 'column',
           name: 'Jane',
-          data: this.getChartData(800),
+          data: this.getChartData(10),
         },
         {
           type: 'column',
           name: 'Joe',
-          data: this.getChartData(800),
+          data: this.getChartData(10),
         },
       ],
     };

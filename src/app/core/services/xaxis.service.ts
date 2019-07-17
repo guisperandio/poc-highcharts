@@ -1,94 +1,56 @@
 import {Injectable} from '@angular/core';
-import {TAxisDates} from '@core/interfaces/xaxis.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AxisDates {
-  private selectedYear: number;
+  todayDate: Date = new Date();
 
   constructor() {}
 
-  updateYearSelection = (year: number) => {
-    this.selectedYear = year;
-  };
+  get today() {
+    return this.todayDate;
+  }
 
-  getPeriod = (period: TAxisDates): Array<number> => {
-    return this[period](this.selectedYear);
-  };
+  get ticks(): Array<number> {
+    const info = 'info';
+    const ticks: Array<number> = [];
+    const firstTick = new Date(
+      this.today.getFullYear(),
+      this.today.getMonth(),
+      1,
+      1
+    );
+    const secondTick = new Date(
+      this.today.getFullYear(),
+      this.today.getMonth() + 1,
+      0,
+      1
+    );
+    const thirdTick = new Date(
+      this.today.getFullYear(),
+      this.today.getMonth() + 2,
+      0,
+      1
+    );
+    const fourthTick = new Date(
+      this.today.getFullYear(),
+      this.today.getMonth() + 3,
+      0,
+      1
+    );
 
-  entireYear = (year: number): Array<number> => {
-    return [
-      Date.UTC(year, 0, 1),
-      Date.UTC(year, 0, 15),
-      Date.UTC(year, 0, 31),
-      Date.UTC(year, 1, 15),
-      Date.UTC(year, 1, 28),
-      Date.UTC(year, 2, 15),
-      Date.UTC(year, 2, 31),
-      Date.UTC(year, 3, 15),
-      Date.UTC(year, 3, 30),
-      Date.UTC(year, 4, 15),
-      Date.UTC(year, 4, 31),
-      Date.UTC(year, 5, 15),
-      Date.UTC(year, 5, 30),
-      Date.UTC(year, 6, 15),
-      Date.UTC(year, 6, 31),
-      Date.UTC(year, 7, 15),
-      Date.UTC(year, 7, 31),
-      Date.UTC(year, 8, 15),
-      Date.UTC(year, 8, 30),
-      Date.UTC(year, 9, 15),
-      Date.UTC(year, 9, 31),
-      Date.UTC(year, 10, 15),
-      Date.UTC(year, 10, 30),
-      Date.UTC(year, 11, 15),
-      Date.UTC(year, 11, 31),
-    ];
-  };
+    ticks.push(
+      firstTick.getTime(),
+      secondTick.getTime(),
+      thirdTick.getTime(),
+      fourthTick.getTime()
+    );
 
-  firstQuarter = (year: number): Array<number> => {
-    return [
-      Date.UTC(year, 0, 1),
-      Date.UTC(year, 0, 15),
-      Date.UTC(year, 0, 31),
-      Date.UTC(year, 1, 15),
-      Date.UTC(year, 1, 28),
-      Date.UTC(year, 2, 15),
-      Date.UTC(year, 2, 31),
-    ];
-  };
-
-  secondQuarter = (year: number): Array<number> => {
-    return [
-      Date.UTC(year, 3, 15),
-      Date.UTC(year, 3, 30),
-      Date.UTC(year, 4, 15),
-      Date.UTC(year, 4, 31),
-      Date.UTC(year, 5, 15),
-      Date.UTC(year, 5, 30),
-    ];
-  };
-
-  thirdQuarter = (year: number): Array<number> => {
-    return [
-      Date.UTC(year, 6, 15),
-      Date.UTC(year, 6, 31),
-      Date.UTC(year, 7, 15),
-      Date.UTC(year, 7, 31),
-      Date.UTC(year, 8, 15),
-      Date.UTC(year, 8, 30),
-    ];
-  };
-
-  fourthQuarter = (year: number): Array<number> => {
-    return [
-      Date.UTC(year, 9, 15),
-      Date.UTC(year, 9, 31),
-      Date.UTC(year, 10, 15),
-      Date.UTC(year, 10, 30),
-      Date.UTC(year, 11, 15),
-      Date.UTC(year, 11, 31),
-    ];
-  };
+    ticks[info] = {
+      unitName: 'day', // unitName: "day",
+      higherRanks: {}, // Omitting this would break things
+    };
+    return ticks;
+  }
 }

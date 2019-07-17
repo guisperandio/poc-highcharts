@@ -13,7 +13,6 @@ import * as highstock from 'highcharts/modules/stock';
 import '@helpers/tooltip.helper';
 
 import {ChartComponent} from '@core/components/chart/chart.component';
-declare const VERSION: string;
 
 // Highcharts providers array
 export function highchartsModules() {
@@ -22,6 +21,7 @@ export function highchartsModules() {
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
+    const VERSION = '4711';
     TestBed.configureTestingModule({
       declarations: [AppComponent, ChartComponent],
       imports: [ChartModule],
@@ -41,7 +41,7 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'poc-highcharts'`, () => {
+  it(`should have as title 'Version: 4711'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
     expect(app.title).toEqual('Version: 4711');

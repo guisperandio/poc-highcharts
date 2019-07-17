@@ -16,6 +16,7 @@ export class PieChartComponent implements OnInit {
         plotShadow: false,
         type: 'pie',
       },
+
       title: {
         text: 'Browser market shares in January, 2018',
       },
@@ -40,7 +41,7 @@ export class PieChartComponent implements OnInit {
           type: 'pie',
           name: 'Brands',
           colorByPoint: true,
-          data: this.getChartData(20),
+          data: this.getChartData(10),
         },
       ],
     };
