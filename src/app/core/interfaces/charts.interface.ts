@@ -1,3 +1,17 @@
+export type ISeriesCategories =
+  | 'commit'
+  | 'closed'
+  | 'pipeline'
+  | 'bestCase'
+  | 'ommited';
+
+export interface ICategoriesForm {
+  name: string;
+  category: string | ISeriesCategories;
+  length: number;
+  checked: boolean;
+}
+
 export interface IXAxisParams {
   chartDates: Array<number>;
 }
@@ -39,4 +53,9 @@ export interface IUpdateParams {
   allowPointSelect: boolean;
   className: string;
   hover: boolean;
+}
+
+export interface IEmitterInterface {
+  value: boolean;
+  type: string;
 }

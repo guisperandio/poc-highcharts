@@ -1,6 +1,6 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import {ChartComponent} from './chart.component';
+import {ChartComponent} from '../components/chart/chart.component';
 import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 
 import {ChartModule, HIGHCHARTS_MODULES} from 'angular-highcharts';

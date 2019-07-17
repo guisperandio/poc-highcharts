@@ -1,12 +1,12 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import {BubbleChartComponent} from './bubble-chart.component';
+import {BubbleChartComponent} from '../../views/bubble-chart/bubble-chart.component';
 import {ChartComponent} from '@core/components/chart/chart.component';
 
 // Highcharts Helpers
 import '@helpers/tooltip.helper';
 import {CurrencyPipe, DatePipe} from '@angular/common';
-import {BubbleDumbComponent} from './dumb/bubble-dumb.component';
+import {BubbleComponent} from '../../views/bubble-chart/presentation/bubble.component';
 
 // Highcharts imports
 import {ChartModule, HIGHCHARTS_MODULES} from 'angular-highcharts';
@@ -28,7 +28,7 @@ describe('BubbleChartComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [ChartModule],
-      declarations: [BubbleChartComponent, BubbleDumbComponent, ChartComponent],
+      declarations: [BubbleChartComponent, BubbleComponent, ChartComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         CurrencyPipe,

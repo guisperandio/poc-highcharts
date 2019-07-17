@@ -1,0 +1,12 @@
+<form action="" class="forms">
+  <div class="forms__container">
+    <ng-container *ngFor="let checkbox of categoriesForm">
+      <mat-checkbox
+        class="forms__checkbox"
+        (change)="onCheck($event, checkbox.category)"
+        [checked]="checkbox.checked"
+        >{{ checkbox.name }} ({{ checkbox.length }})</mat-checkbox
+      >
+    </ng-container>
+  </div>
+</form>

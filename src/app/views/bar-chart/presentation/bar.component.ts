@@ -3,10 +3,10 @@ import {ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
   selector: 'app-bar-dumb',
-  templateUrl: './bar-dumb.component.html',
+  templateUrl: './bar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BarDumbComponent implements OnChanges, OnInit {
+export class BarComponent implements OnChanges, OnInit {
   @Input() chartParams: any;
 
   ngOnChanges() {}
