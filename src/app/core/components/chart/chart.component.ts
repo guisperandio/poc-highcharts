@@ -21,9 +21,9 @@ export class ChartComponent implements OnChanges, OnInit {
   constructor() {}
 
   ngOnChanges(changes: SimpleChanges) {
-    this.chartData = this.isStockChart
-      ? new StockChart(this.chartParams)
-      : new Chart(this.chartParams);
+    if (changes.chartParams && this.chartData) {
+      this.chartData.ref.update(this.chartParams, true);
+    }
   }
 
   ngOnInit() {

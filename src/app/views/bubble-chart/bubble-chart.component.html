@@ -1,5 +1,5 @@
 <app-bubble-dumb
   [chartParams]="chartParams"
-  (emitNewYear)="setNewYear($event)"
-  (emitNewPeriod)="setNewPeriod($event)"
+  [categoriesForm]="categoriesForm"
+  (checkboxEmitter)="onCheck($event)"
 ></app-bubble-dumb>

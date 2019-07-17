@@ -8,7 +8,6 @@ import {
 } from 'highcharts';
 import {AxisDates} from '@services/xaxis.service';
 import {IBubbleOptions, IBubbleTooltip} from '@interfaces/tooltip.interface';
-import {TAxisDates} from '@interfaces/xaxis.interface';
 import {CurrencyPipe, DatePipe} from '@angular/common';
 import {
   IDefaultParams,
@@ -16,8 +15,12 @@ import {
   ISeriesParams,
   IYAxisParams,
   IUpdateParams,
+  IEmitterInterface,
+  ISeriesCategories,
+  ICategoriesForm,
 } from '@interfaces/charts.interface';
 import {GeneralHelper} from '@core/helpers/general.helper';
+import {SeriesService} from '@core/services/series.service';
 
 @Component({
   templateUrl: './bubble-chart.component.html',
@@ -31,9 +34,11 @@ export class BubbleChartComponent implements OnInit {
 
   chartParams: IBubbleOptions;
   chartPartialParams: Partial<IBubbleOptions>;
+  categoriesForm: Array<ICategoriesForm> = [];
 
   constructor(
     private axisDates: AxisDates,
+    private series: SeriesService,
     private generalHelper: GeneralHelper,
     private currency: CurrencyPipe,
     private date: DatePipe
@@ -51,6 +56,10 @@ export class BubbleChartComponent implements OnInit {
       useHTML: true,
       followPointer: false,
     });
+
+    this.categoriesForm = this.getCategoriesForm(
+      this.chartPartialParams.series
+    );
 
     this.chartParams = this.getChartParams(this.chartPartialParams);
   }
@@ -106,7 +115,8 @@ export class BubbleChartComponent implements OnInit {
   };
 
   getChartData = (
-    arraySize = 50
+    arraySize = 50,
+    type?: ISeriesCategories
   ): Array<
     | [string | number, number]
     | [string | number, number, number]
@@ -130,7 +140,7 @@ export class BubbleChartComponent implements OnInit {
         y: dealScore,
         z: amount,
         text: `PipelineTest-${num}`,
-        colorIndex: dealScore < 70 ? (dealScore < 40 ? 5 : 3) : 2,
+        colorIndex: !type ? (dealScore < 70 ? (dealScore < 40 ? 5 : 3) : 2) : 1,
       });
     });
 
@@ -147,9 +157,8 @@ export class BubbleChartComponent implements OnInit {
       allowForce: false,
     }
   ): Partial<IBubbleOptions> => {
-    let defaultOptions: Partial<IBubbleOptions>;
     const onClearChart = this.onClearChart;
-    defaultOptions = {
+    const defaultOptions: Partial<IBubbleOptions> = {
       chart: {
         animation: true,
         className: params.chartType,
@@ -192,12 +201,11 @@ export class BubbleChartComponent implements OnInit {
   };
 
   getXAxisParams = (): XAxisOptions | XAxisOptions[] => {
-    let xAxisOptions: XAxisOptions | XAxisOptions[];
     const ticks = this.axisDates.ticks;
     const today = this.axisDates.today;
     today.setHours(1, 0, 0, 0);
 
-    xAxisOptions = {
+    const xAxisOptions: XAxisOptions | XAxisOptions[] = {
       type: 'datetime',
       startOnTick: true,
       endOnTick: true,
@@ -236,7 +244,7 @@ export class BubbleChartComponent implements OnInit {
             useHTML: true,
             verticalAlign: 'top',
             x: 0,
-            y: -7,
+            y: -6,
             rotation: 0,
           },
         },
@@ -255,9 +263,7 @@ export class BubbleChartComponent implements OnInit {
       interval: 20,
     }
   ): YAxisOptions | YAxisOptions[] => {
-    let yAxisOptions: YAxisOptions | YAxisOptions[];
-
-    yAxisOptions = {
+    const yAxisOptions: YAxisOptions | YAxisOptions[] = {
       className: params.axisClass,
       startOnTick: true,
       endOnTick: false,
@@ -285,9 +291,7 @@ export class BubbleChartComponent implements OnInit {
     }
   ): IBubbleTooltip => {
     const currency = this.currency;
-    const onClearChart = this.onClearChart;
-    let tooltipOptions: IBubbleTooltip;
-    tooltipOptions = {
+    const tooltipOptions: IBubbleTooltip = {
       enabled: params.enabled,
       animation: params.animation,
       useHTML: params.useHTML,
@@ -319,7 +323,7 @@ export class BubbleChartComponent implements OnInit {
       events: {
         tooltipClick: (tooltip, element: HTMLElement) => {
           if (element.className === 'bubble-tooltip__close') {
-            onClearChart(tooltip.chart);
+            this.onClearChart(tooltip.chart);
           }
         },
         tooltipMouseOut: tooltip => {},
@@ -338,31 +342,61 @@ export class BubbleChartComponent implements OnInit {
       maxSize: 80,
     }
   ): Array<SeriesOptionsType> => {
-    let seriesOptions: Array<SeriesOptionsType>;
-    const onBlockChart = this.onBlockChart;
-    seriesOptions = [
-      {
-        stickyTracking: params.stickyTracking,
-        allowPointSelect: params.allowPointSelect,
-        type: params.type,
-        data: this.chartData,
-        className: 'bubble--point-unselected',
-        dataLabels: {
-          enabled: false,
-        },
-        minSize: 10,
-        maxSize: 80,
-        point: {
-          events: {
-            click() {
-              onBlockChart(this.series.chart);
-            },
-          },
-        },
-      },
+    const seriesOptions: Array<SeriesOptionsType> = [
+      this.series.getSeriesOptions({
+        id: 'commit',
+        name: 'Commit',
+        params,
+        chartData: this.chartData,
+        callback: this.onBlockChart,
+      }),
+
+      this.series.getSeriesOptions({
+        id: 'bestCase',
+        name: 'Upside/Best Case',
+        params,
+        chartData: this.getChartData(17),
+        callback: this.onBlockChart,
+      }),
+      this.series.getSeriesOptions({
+        id: 'pipeline',
+        name: 'Pipeline',
+        params,
+        chartData: this.getChartData(12),
+        callback: this.onBlockChart,
+      }),
+      this.series.getSeriesOptions({
+        id: 'ommited',
+        name: 'Ommited',
+        params,
+        chartData: this.getChartData(10),
+        callback: this.onBlockChart,
+      }),
+      this.series.getSeriesOptions({
+        id: 'closed',
+        name: 'Closed',
+        params,
+        chartData: this.getChartData(9, 'closed'),
+        callback: this.onBlockChart,
+      }),
     ];
 
     return seriesOptions;
+  };
+
+  getCategoriesForm = (series: Array<SeriesOptionsType>) => {
+    const categoriesForm: Array<ICategoriesForm> = [];
+
+    series.forEach(serie => {
+      categoriesForm.push({
+        name: serie.name,
+        category: serie.id,
+        length: serie.data.length,
+        checked: serie.visible,
+      });
+    });
+
+    return categoriesForm;
   };
 
   getChartParams = (chartParams: Partial<IBubbleOptions>): IBubbleOptions => {
@@ -372,11 +406,13 @@ export class BubbleChartComponent implements OnInit {
     return mergedParams;
   };
 
-  setNewYear = (year: number) => {
-    this.chartParams = this.getChartParams(this.chartPartialParams);
-  };
+  onCheck = (obj: IEmitterInterface) => {
+    this.chartParams.series
+      .filter(x => x.id === obj.type)
+      .map(x => {
+        x.visible = obj.value;
+      });
 
-  setNewPeriod = (period: TAxisDates) => {
     this.chartParams = this.getChartParams(this.chartPartialParams);
   };
 }

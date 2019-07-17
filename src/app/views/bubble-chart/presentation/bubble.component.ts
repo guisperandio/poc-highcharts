@@ -8,7 +8,10 @@ import {
 } from '@angular/core';
 import {ChangeDetectionStrategy} from '@angular/core';
 import {IBubbleOptions} from '@core/interfaces/tooltip.interface';
-import {TAxisDates} from '@core/interfaces/xaxis.interface';
+import {
+  IEmitterInterface,
+  ICategoriesForm,
+} from '@core/interfaces/charts.interface';
 
 @Component({
   selector: 'app-bubble-dumb',
@@ -18,21 +21,17 @@ import {TAxisDates} from '@core/interfaces/xaxis.interface';
 export class BubbleComponent implements OnChanges, OnInit {
   @Input() yearSelected: number;
   @Input() chartParams: IBubbleOptions;
+  @Input() categoriesForm: ICategoriesForm;
 
-  @Output() emitNewYear: EventEmitter<number> = new EventEmitter<number>();
-  @Output() emitNewPeriod: EventEmitter<TAxisDates> = new EventEmitter<
-    TAxisDates
-  >();
+  @Output() checkboxEmitter: EventEmitter<
+    IEmitterInterface
+  > = new EventEmitter();
 
   ngOnChanges() {}
 
   ngOnInit() {}
 
-  onChangeYear(year: string) {
-    this.emitNewYear.emit(Number(year));
-  }
-
-  onChangePeriod(period: TAxisDates) {
-    this.emitNewPeriod.emit(period);
-  }
+  onCheck = (obj: IEmitterInterface) => {
+    this.checkboxEmitter.emit({value: obj.value, type: obj.type});
+  };
 }

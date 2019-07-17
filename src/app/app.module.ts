@@ -1,15 +1,16 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, CUSTOM_ELEMENTS_SCHEMA, Injector} from '@angular/core';
 
+// Material imports
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatButtonModule, MatCheckboxModule} from '@angular/material';
+
 // Highcharts imports
 import {ChartModule, HIGHCHARTS_MODULES} from 'angular-highcharts';
 import * as more from 'highcharts/highcharts-more';
 import * as boost from 'highcharts/modules/boost';
 import * as funnel from 'highcharts/modules/funnel';
 import * as stock from 'highcharts/modules/stock';
-
-// Highcharts Helpers
-import '@helpers/tooltip.helper';
 
 // Highcharts providers array
 export function highchartsModules() {
@@ -45,6 +46,7 @@ import {LineChartComponent} from '@views/line-chart/line-chart.component';
 import {LineComponent} from '@views/line-chart/presentation/line.component';
 import {PieChartComponent} from '@views/pie-chart/pie-chart.component';
 import {PieComponent} from '@views/pie-chart/presentation/pie.component';
+import {ChartFormComponent} from '@core/components/chart-form/chart-form.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +60,7 @@ import {PieComponent} from '@views/pie-chart/presentation/pie.component';
     CandleChartComponent,
     CandleComponent,
     ChartComponent,
+    ChartFormComponent,
     FunnelChartComponent,
     FunnelComponent,
     LineChartComponent,
@@ -65,7 +68,14 @@ import {PieComponent} from '@views/pie-chart/presentation/pie.component';
     PieChartComponent,
     PieComponent,
   ],
-  imports: [BrowserModule, ChartModule, FlexLayoutModule],
+  imports: [
+    BrowserModule,
+    ChartModule,
+    FlexLayoutModule,
+    BrowserAnimationsModule,
+    MatButtonModule,
+    MatCheckboxModule,
+  ],
   providers: [
     {
       provide: HIGHCHARTS_MODULES,
