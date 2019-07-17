@@ -195,8 +195,8 @@ export class BubbleChartComponent implements OnInit {
     let xAxisOptions: XAxisOptions | XAxisOptions[];
     const ticks = this.axisDates.ticks;
     const today = this.axisDates.today;
-
     today.setHours(1, 0, 0, 0);
+
     xAxisOptions = {
       type: 'datetime',
       startOnTick: true,
@@ -339,11 +339,9 @@ export class BubbleChartComponent implements OnInit {
     }
   ): Array<SeriesOptionsType> => {
     let seriesOptions: Array<SeriesOptionsType>;
-    let lastPointClicked: string;
     const onBlockChart = this.onBlockChart;
     seriesOptions = [
       {
-        pointStart: Date.UTC(2019, 6, 1),
         stickyTracking: params.stickyTracking,
         allowPointSelect: params.allowPointSelect,
         type: params.type,
@@ -352,20 +350,12 @@ export class BubbleChartComponent implements OnInit {
         dataLabels: {
           enabled: false,
         },
-        marker: {
-          states: {
-            hover: {
-              enabled: true,
-            },
-          },
-        },
         minSize: 10,
         maxSize: 80,
         point: {
           events: {
             click() {
               onBlockChart(this.series.chart);
-              lastPointClicked = this.id;
             },
           },
         },
