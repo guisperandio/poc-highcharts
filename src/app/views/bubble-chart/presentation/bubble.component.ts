@@ -12,10 +12,10 @@ import {TAxisDates} from '@core/interfaces/xaxis.interface';
 
 @Component({
   selector: 'app-bubble-dumb',
-  templateUrl: './bubble-dumb.component.html',
+  templateUrl: './bubble.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BubbleDumbComponent implements OnChanges, OnInit {
+export class BubbleComponent implements OnChanges, OnInit {
   @Input() yearSelected: number;
   @Input() chartParams: IBubbleOptions;
 

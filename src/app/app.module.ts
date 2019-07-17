@@ -21,7 +21,7 @@ import {FlexLayoutModule} from '@angular/flex-layout';
 
 // Angular Custom Elements
 import {BubbleChartComponent} from '@views/bubble-chart/bubble-chart.component';
-import {BubbleDumbComponent} from '@views/bubble-chart/dumb/bubble-dumb.component';
+import {BubbleComponent} from '@views/bubble-chart/presentation/bubble.component';
 
 // Global vars import
 import {CustomElementsInterface, GlobalVars} from '@core/global/global.vars';
@@ -34,36 +34,36 @@ import {createCustomElement} from '@angular/elements';
 
 // Graph components
 import {AreaChartComponent} from '@views/area-chart/area-chart.component';
-import {AreaDumbComponent} from '@views/area-chart/dumb/area-dumb.component';
+import {AreaComponent} from '@views/area-chart/presentation/area.component';
 import {BarChartComponent} from '@views/bar-chart/bar-chart.component';
-import {BarDumbComponent} from '@views/bar-chart/dumb/bar-dumb.component';
+import {BarComponent} from '@views/bar-chart/presentation/bar.component';
 import {CandleChartComponent} from '@views/candle-chart/candle-chart.component';
-import {CandleDumbComponent} from '@views/candle-chart/dumb/candle-dumb.component';
+import {CandleComponent} from '@views/candle-chart/presentation/candle.component';
 import {FunnelChartComponent} from '@views/funnel-chart/funnel-chart.component';
-import {FunnelDumbComponent} from '@views/funnel-chart/dumb/funnel-dumb.component';
+import {FunnelComponent} from '@views/funnel-chart/presentation/funnel.component';
 import {LineChartComponent} from '@views/line-chart/line-chart.component';
-import {LineDumbComponent} from '@views/line-chart/dumb/line-dumb.component';
+import {LineComponent} from '@views/line-chart/presentation/line.component';
 import {PieChartComponent} from '@views/pie-chart/pie-chart.component';
-import {PieDumbComponent} from '@views/pie-chart/dumb/pie-dumb.component';
+import {PieComponent} from '@views/pie-chart/presentation/pie.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AreaChartComponent,
-    AreaDumbComponent,
+    AreaComponent,
     BarChartComponent,
-    BarDumbComponent,
+    BarComponent,
     BubbleChartComponent,
-    BubbleDumbComponent,
+    BubbleComponent,
     CandleChartComponent,
-    CandleDumbComponent,
+    CandleComponent,
     ChartComponent,
     FunnelChartComponent,
-    FunnelDumbComponent,
+    FunnelComponent,
     LineChartComponent,
-    LineDumbComponent,
+    LineComponent,
     PieChartComponent,
-    PieDumbComponent,
+    PieComponent,
   ],
   imports: [BrowserModule, ChartModule, FlexLayoutModule],
   providers: [

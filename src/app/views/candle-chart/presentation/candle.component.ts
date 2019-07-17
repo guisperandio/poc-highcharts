@@ -2,11 +2,11 @@ import {Component, OnChanges, Input, OnInit} from '@angular/core';
 import {ChangeDetectionStrategy} from '@angular/core';
 
 @Component({
-  selector: 'app-area-dumb',
-  templateUrl: './area-dumb.component.html',
+  selector: 'app-candle-dumb',
+  templateUrl: './candle.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AreaDumbComponent implements OnChanges, OnInit {
+export class CandleComponent implements OnChanges, OnInit {
   @Input() chartParams: any;
 
   ngOnChanges() {}
